@@ -1,6 +1,7 @@
 # License Policy
 
-Spyber is licensed as `AGPL-3.0-only`.
+Spyber is licensed as `AGPL-3.0-only`. The complete license text is in
+[`LICENSE`](../LICENSE).
 
 ## Intent
 

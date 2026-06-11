@@ -22,14 +22,14 @@ so the engine can run before database wiring is added.
 
 ## Workflow
 
-1. Add allowed sources for a country.
-2. Or run country discovery from public OpenStreetMap/Overpass shop tags and Common Crawl country TLD indexes.
-3. Discover candidate company domains manually, from source pages, or country data.
+1. Receive country, business intent, and limit.
+2. Discover candidates from country data, source pages, or manual sources.
+3. Canonicalize and dedupe companies.
 4. Crawl public pages with safe defaults.
-5. Classify ecommerce evidence.
-6. Extract public emails with source URLs.
-7. Verify and review contacts.
-8. Export only compliant records.
+5. Score evidence against the business intent.
+6. Extract public contacts with source URLs.
+7. Reject non-matching businesses before export.
+8. Verify, review, suppress, and export compliant records.
 9. Maintain suppression and audit history.
 
 ## Invariants
@@ -37,6 +37,7 @@ so the engine can run before database wiring is added.
 - A company must have a normalized website host.
 - A contact must have a source URL and company ID.
 - Suppressed contacts must never be exported.
+- Rejected companies must not contribute export rows.
 - Export records must include filters and timestamps.
 - Crawler failures must be recorded instead of hidden.
 
