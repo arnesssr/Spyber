@@ -185,9 +185,12 @@ make lines
 - [Architecture](docs/architecture.md)
 - [Compliance](docs/compliance.md)
 - [Data Model](docs/data-model.md)
-- [Engine Standard](docs/engine-standard.md)
+- [Product Engine](docs/product-engine.md)
 - [Operator Guide](docs/operator-guide.md)
 - [License Policy](docs/license-policy.md)
+- [Developers](DEVELOPERS.md)
+- [Contributing](CONTRIBUTING.md)
+- [Testing](tests/README.md)
 
 ---
 

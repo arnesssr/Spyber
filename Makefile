@@ -1,4 +1,4 @@
-.PHONY: test fmt vet build check-build run-ui smoke lines
+.PHONY: test fmt vet build check-build run-ui smoke live-test-ke lines
 
 test:
 	go test ./...
@@ -25,6 +25,9 @@ smoke:
 	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber source add --country GB --type seed --url https://example.com
 	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber discover --country GB --domain https://shop.example
 	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber companies list --country GB
+
+live-test-ke:
+	sh tests/live/ke-commerce-smoke.sh
 
 lines:
 	find . -type f -not -path './.git/*' -not -path './.spyber/*' -not -path './bin/*' -exec wc -l {} +

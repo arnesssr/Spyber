@@ -15,6 +15,19 @@ and interfaces.
 The CLI should not own business logic. It parses user intent, calls app
 services, and prints results.
 
+## Scalable Direction
+
+The architecture should grow by strengthening boundaries, not by creating a
+larger handler or crawler file.
+
+- Replace local JSON with Postgres repositories behind `internal/ports`.
+- Add search jobs and result sets before increasing crawl volume.
+- Add durable job state before distributed workers.
+- Keep provider integrations behind `CountryFinder` or similar ports.
+- Keep scoring/profile rules in app/domain code, not templates.
+- Add metrics around discovery, dedupe, crawl success, match rate, and export.
+- Keep live-network checks outside `make test`.
+
 ## Source Of Truth
 
 Production should use Postgres. The development scaffold uses a local JSON store

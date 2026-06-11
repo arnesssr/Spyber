@@ -4,3 +4,11 @@ coverage.out
 *.test
 *.tmp
 .DS_Store
+
+# Local planning notes. Public repo docs must address users, developers,
+# contributors, or product behavior.
+planning/
+plans/
+docs/planning/
+*.plan.md
+*.planning.md
