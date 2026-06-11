@@ -134,7 +134,7 @@ make run-ui
 Then open:
 
 ```text
-http://127.0.0.1:8080
+http://127.0.0.1:8091
 ```
 
 Set `SPYBER_ADMIN_TOKEN` to require browser Basic Auth with username `admin`:
@@ -176,7 +176,7 @@ deduped, source-backed, and tied to matched businesses.
 - exports exclude suppressed contacts
 - source and export actions are audit logged
 - named personal emails are classified separately from generic role addresses
-- the web UI binds to `127.0.0.1:8080` by default
+- the web UI binds to `127.0.0.1:8091` by default
 
 ## Verification
 

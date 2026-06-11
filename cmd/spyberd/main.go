@@ -20,7 +20,7 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", "127.0.0.1:8080", "address to listen on")
+	addr := flag.String("addr", "127.0.0.1:8091", "address to listen on")
 	storePath := flag.String("store", defaultStore(), "local store path")
 	flag.Parse()
 

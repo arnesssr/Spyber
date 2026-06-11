@@ -18,7 +18,7 @@ check-build:
 	go build -o /tmp/spyberd-check ./cmd/spyberd
 
 run-ui:
-	go run ./cmd/spyberd --addr 127.0.0.1:8080
+	go run ./cmd/spyberd --addr 127.0.0.1:8091
 
 smoke:
 	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber init

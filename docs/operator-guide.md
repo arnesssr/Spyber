@@ -19,7 +19,7 @@ spyber discover --country GB --from-sources --limit 100
 make run-ui
 ```
 
-Open `http://127.0.0.1:8080`. For a shared machine, set an admin token:
+Open `http://127.0.0.1:8091`. For a shared machine, set an admin token:
 
 ```bash
 SPYBER_ADMIN_TOKEN=change-me make run-ui
