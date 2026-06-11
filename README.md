@@ -19,10 +19,11 @@ or suppressed contacts from being exported.
 Current v1 capabilities:
 
 - country-scoped discovery
+- profile-driven business search
 - source-page candidate discovery
 - autonomous country discovery through public indexes
 - public website crawling with per-host delay and safe fetch limits
-- ecommerce signal classification
+- segment and ecommerce signal classification
 - public email extraction
 - generic business email preference
 - review and suppression workflow
@@ -70,21 +71,27 @@ Every exportable row must have:
 - **Export gating:** suppressed contacts and non-matching businesses are
   excluded.
 
-## Not Done Yet
+## Business Profiles
 
-The next engine layer is business profiles:
+Spyber ships with a small public profile catalog:
 
 ```text
 Commerce -> Wholesalers
+Commerce -> Retailers
+Commerce -> Ecommerce
 Services -> Salons
-Healthcare -> Clinics
-Food -> Restaurants
 ```
 
-Each profile needs include terms, exclude terms, discovery hints, scoring
-weights, and acceptance thresholds. Until profiles are implemented, Spyber is
-strongest for broad commerce discovery and weaker for arbitrary segments like
-`wholesalers` or `salons`.
+Each profile defines discovery terms, include terms, exclude terms, and an
+acceptance threshold. Custom search terms are also supported for early
+exploration, for example `--query salon`.
+
+## Not Done Yet
+
+- Phone extraction is not implemented yet.
+- Search-job history is not modeled yet.
+- Reviewed precision reporting is not modeled yet.
+- Local JSON is a development store, not the production durability target.
 
 ## Stack
 
@@ -98,7 +105,9 @@ strongest for broad commerce discovery and weaker for arbitrary segments like
 ```bash
 go test ./...
 go run ./cmd/spyber init
-go run ./cmd/spyber scrape --country KE --limit 50
+go run ./cmd/spyber profiles
+go run ./cmd/spyber find --country KE --sector commerce --segment wholesalers --limit 50
+go run ./cmd/spyber find --country KE --query salon --limit 50
 go run ./cmd/spyber companies list --country KE
 go run ./cmd/spyber contacts list --country KE
 go run ./cmd/spyber export --country KE --format csv --only generic
@@ -137,9 +146,9 @@ SPYBER_ADMIN_TOKEN=change-me make run-ui
 The UI is server-rendered Go HTML. It has no TypeScript or frontend build
 pipeline.
 
-Use the dashboard country field and click `Scrape country` to discover public
-business websites, crawl them, extract contacts, and populate review/export
-tables.
+Use the country field and `Find businesses` form to choose a business type,
+set a limit, and discover public business websites without knowing URLs.
+`Broad ecommerce scrape` remains available as a fallback.
 
 ## Literal Engine Test
 
@@ -149,7 +158,7 @@ claim:
 ```bash
 rm -f /tmp/spyber-ke.json
 SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber init
-SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber scrape --country KE --limit 5
+SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber find --country KE --sector commerce --segment wholesalers --limit 5
 SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber companies list --country KE
 SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber contacts list --country KE
 SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber export --country KE --format csv --only generic

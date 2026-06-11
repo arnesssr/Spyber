@@ -28,8 +28,11 @@ func TestDashboardRenders(t *testing.T) {
 	if res.Code != http.StatusOK {
 		t.Fatalf("expected status 200, got %d", res.Code)
 	}
-	if !strings.Contains(res.Body.String(), "Dashboard") {
-		t.Fatalf("expected dashboard body, got %s", res.Body.String())
+	if !strings.Contains(res.Body.String(), "Find businesses") {
+		t.Fatalf("expected find body, got %s", res.Body.String())
+	}
+	if !strings.Contains(res.Body.String(), "Commerce / Wholesalers") {
+		t.Fatalf("expected profile selector, got %s", res.Body.String())
 	}
 }
 

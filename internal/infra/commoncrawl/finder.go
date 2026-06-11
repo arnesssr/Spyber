@@ -32,6 +32,14 @@ func New(indexAPI string) *Finder {
 }
 
 func (f *Finder) FindBusinesses(ctx context.Context, countryCode string, limit int) ([]ports.BusinessCandidate, error) {
+	return f.find(ctx, countryCode, nil, limit)
+}
+
+func (f *Finder) SearchBusinesses(ctx context.Context, search ports.BusinessSearch) ([]ports.BusinessCandidate, error) {
+	return f.find(ctx, search.CountryCode, search.Terms, search.Limit)
+}
+
+func (f *Finder) find(ctx context.Context, countryCode string, terms []string, limit int) ([]ports.BusinessCandidate, error) {
 	country, err := domain.NormalizeCountry(countryCode)
 	if err != nil {
 		return nil, err
@@ -52,7 +60,7 @@ func (f *Finder) FindBusinesses(ctx context.Context, countryCode string, limit i
 		if len(out) >= limit {
 			break
 		}
-		candidates, err := f.query(ctx, indexAPI, domain, limit-len(out))
+		candidates, err := f.query(ctx, indexAPI, domain, terms, limit-len(out))
 		if err != nil {
 			continue
 		}
@@ -92,13 +100,19 @@ func (f *Finder) latestIndex(ctx context.Context) (string, error) {
 	return collections[0].API, nil
 }
 
-func (f *Finder) query(ctx context.Context, indexAPI, domain string, limit int) ([]ports.BusinessCandidate, error) {
+func (f *Finder) query(ctx context.Context, indexAPI, domain string, terms []string, limit int) ([]ports.BusinessCandidate, error) {
+	rawURL := domain
+	if len(cleanTerms(terms)) > 0 {
+		rawURL = "*." + domain + "/*" + cleanTerms(terms)[0] + "*"
+	}
 	values := url.Values{
-		"url":       []string{domain},
-		"matchType": []string{"domain"},
-		"output":    []string{"json"},
-		"filter":    []string{"status:200", "mime:text/html"},
-		"limit":     []string{"500"},
+		"url":    []string{rawURL},
+		"output": []string{"json"},
+		"filter": []string{"status:200", "mime:text/html"},
+		"limit":  []string{"500"},
+	}
+	if len(cleanTerms(terms)) == 0 {
+		values["matchType"] = []string{"domain"}
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, indexAPI+"?"+values.Encode(), nil)
 	if err != nil {
@@ -113,7 +127,7 @@ func (f *Finder) query(ctx context.Context, indexAPI, domain string, limit int) 
 	if resp.StatusCode >= 400 {
 		return nil, fmt.Errorf("common crawl returned status %d", resp.StatusCode)
 	}
-	return parseLines(resp.Body, limit), nil
+	return parseLinesForTerms(resp.Body, limit, terms), nil
 }
 
 func (f *Finder) client() *http.Client {
@@ -150,6 +164,10 @@ type cdxRecord struct {
 }
 
 func parseLines(reader io.Reader, limit int) []ports.BusinessCandidate {
+	return parseLinesForTerms(reader, limit, nil)
+}
+
+func parseLinesForTerms(reader io.Reader, limit int, terms []string) []ports.BusinessCandidate {
 	scanner := bufio.NewScanner(reader)
 	seen := map[string]bool{}
 	var out []ports.BusinessCandidate
@@ -158,7 +176,7 @@ func parseLines(reader io.Reader, limit int) []ports.BusinessCandidate {
 		if err := json.Unmarshal(scanner.Bytes(), &record); err != nil {
 			continue
 		}
-		if !usefulURL(record.URL) {
+		if !usefulURL(record.URL, terms) {
 			continue
 		}
 		candidate, ok := toCandidate(record.URL)
@@ -196,7 +214,7 @@ func toCandidate(rawURL string) (ports.BusinessCandidate, bool) {
 	}, true
 }
 
-func usefulURL(rawURL string) bool {
+func usefulURL(rawURL string, terms []string) bool {
 	lower := strings.ToLower(rawURL)
 	keywords := []string{"shop", "store", "product", "cart", "checkout"}
 	blocked := []string{"1-win", "1win", "bet", "casino", "gambl", "login", "register", "sexy", "porn", "adult"}
@@ -205,8 +223,41 @@ func usefulURL(rawURL string) bool {
 			return false
 		}
 	}
+	for _, term := range cleanTerms(terms) {
+		if urlContainsTerm(lower, term) {
+			return true
+		}
+	}
+	if len(cleanTerms(terms)) > 0 {
+		return false
+	}
 	for _, keyword := range keywords {
 		if strings.Contains(lower, keyword) {
+			return true
+		}
+	}
+	return false
+}
+
+func cleanTerms(terms []string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, term := range terms {
+		term = strings.ToLower(strings.TrimSpace(term))
+		if len(term) < 3 || seen[term] {
+			continue
+		}
+		seen[term] = true
+		out = append(out, term)
+	}
+	return out
+}
+
+func urlContainsTerm(rawURL, term string) bool {
+	for _, token := range strings.FieldsFunc(rawURL, func(r rune) bool {
+		return !(r >= 'a' && r <= 'z' || r >= '0' && r <= '9')
+	}) {
+		if token == term {
 			return true
 		}
 	}

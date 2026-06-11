@@ -4,6 +4,9 @@
 
 ```bash
 spyber init
+spyber profiles
+spyber find --country KE --sector commerce --segment wholesalers --limit 50
+spyber find --country KE --query salon --limit 50
 spyber scrape --country KE --limit 50
 spyber source add --country GB --type seed --url https://example.com
 spyber discover --country GB --domain https://shop.example
@@ -24,8 +27,10 @@ SPYBER_ADMIN_TOKEN=change-me make run-ui
 
 The browser username is `admin`; the password is the token.
 
-The dashboard `Scrape country` action discovers public business websites from
-country-level data, crawls those sites, extracts contacts, and verifies results.
+The home screen `Find businesses` action discovers public business websites
+from country-level data and profile terms, crawls those sites, extracts
+contacts, and verifies results. Manual sources and broad ecommerce scraping are
+secondary paths.
 
 ## Crawl
 

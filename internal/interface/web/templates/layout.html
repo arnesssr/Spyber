@@ -18,7 +18,7 @@
   </header>
   <div class="shell">
     <nav class="nav" aria-label="Primary">
-      <a {{if eq .Active "dashboard"}}class="active"{{end}} href="/?country={{.Country}}">Dashboard</a>
+      <a {{if eq .Active "find"}}class="active"{{end}} href="/?country={{.Country}}">Find</a>
       <a {{if eq .Active "sources"}}class="active"{{end}} href="/sources?country={{.Country}}">Sources</a>
       <a {{if eq .Active "companies"}}class="active"{{end}} href="/companies?country={{.Country}}">Companies</a>
       <a {{if eq .Active "contacts"}}class="active"{{end}} href="/contacts?country={{.Country}}">Contacts</a>

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/waymore/spyber/internal/app"
 	"github.com/waymore/spyber/internal/domain"
@@ -60,6 +61,31 @@ func (s *Server) scrapeCountry(w http.ResponseWriter, r *http.Request) {
 		notice = err.Error()
 	}
 	redirectBack(w, r, "/", country, notice)
+}
+
+func (s *Server) findBusinesses(w http.ResponseWriter, r *http.Request) {
+	country := currentCountry(r)
+	sector, segment := profileParts(r.FormValue("profile"))
+	summary, err := s.app.FindBusinesses(r.Context(), app.FindRequest{
+		CountryCode: country,
+		Sector:      sector,
+		Segment:     segment,
+		Query:       r.FormValue("query"),
+		Limit:       formInt(r, "limit", 50),
+	})
+	notice := fmt.Sprintf("matched %d businesses, found %d contacts", summary.Matched, summary.Contacts+summary.DirectEmails)
+	if err != nil {
+		notice = err.Error()
+	}
+	redirectBack(w, r, "/", country, notice)
+}
+
+func profileParts(value string) (string, string) {
+	parts := strings.SplitN(value, "/", 2)
+	if len(parts) == 2 {
+		return parts[0], parts[1]
+	}
+	return "commerce", "wholesalers"
 }
 
 func formInt(r *http.Request, key string, fallback int) int {

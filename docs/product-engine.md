@@ -15,9 +15,9 @@ The user should not need to know business URLs.
 
 ## Current Product Claim
 
-Spyber can discover a measurable set of public businesses for a country, crawl
-their public websites, classify commerce evidence, extract public contact
-emails, and export source-backed rows after suppression checks.
+Spyber can discover a measurable set of public businesses for a country and
+profile, crawl their public websites, classify profile evidence, extract public
+contact emails, and export source-backed rows after suppression checks.
 
 It does not claim to find every business in a country.
 
@@ -41,8 +41,8 @@ country + business intent + limit
 - **Deduplication:** avoid adding the same company host or contact email twice.
 - **Crawl planning:** fetch the candidate page and bounded contact/about/support
   links.
-- **Evidence scoring:** use storefront, product, cart, checkout, pricing,
-  catalog, and platform signals.
+- **Profile scoring:** use include terms, exclude terms, discovery hints,
+  storefront signals, and profile-specific thresholds.
 - **Contact extraction:** extract public emails, classify generic/named/unknown,
   and keep source URLs.
 - **Export gating:** exclude suppressed contacts and rejected businesses.
@@ -62,9 +62,19 @@ Every serious run should be judged by:
 - duplicate rate
 - reviewed precision
 
+## Profiles
+
+The public profile catalog currently covers:
+
+- `commerce/wholesalers`
+- `commerce/retailers`
+- `commerce/ecommerce`
+- `services/salons`
+
+Custom query profiles are allowed for exploratory searches.
+
 ## Current Gaps
 
-- Segment profiles are not implemented yet.
 - Phone extraction is not implemented yet.
 - Business-name extraction is basic.
 - Search-job history is not modeled yet.

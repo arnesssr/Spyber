@@ -19,3 +19,16 @@ func TestParseLinesDedupesHosts(t *testing.T) {
 		t.Fatalf("unexpected website: %s", candidates[0].Website)
 	}
 }
+
+func TestParseLinesForTermsFiltersBySearchTerms(t *testing.T) {
+	data := `{"url":"https://a.co.ke/salon"}
+{"url":"https://b.co.ke/cart"}
+{"url":"https://c.co.ke/hair-salon-contact"}`
+	candidates := parseLinesForTerms(strings.NewReader(data), 10, []string{"salon"})
+	if len(candidates) != 2 {
+		t.Fatalf("expected 2 salon candidates, got %d", len(candidates))
+	}
+	if candidates[0].Website != "https://a.co.ke/salon" {
+		t.Fatalf("unexpected first website: %s", candidates[0].Website)
+	}
+}

@@ -22,6 +22,7 @@ type pageData struct {
 	Companies    []domain.Company
 	Contacts     []domain.Contact
 	Suppressions []domain.Suppression
+	Profiles     []domain.BusinessProfile
 }
 
 func (s *Server) render(w http.ResponseWriter, r *http.Request, page string, data pageData) {

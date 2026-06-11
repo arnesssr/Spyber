@@ -2,12 +2,16 @@
 
 package web
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/waymore/spyber/internal/domain"
+)
 
 func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 	country := currentCountry(r)
 	stats, err := s.app.DashboardStats(r.Context(), country)
-	data := pageData{Title: "Dashboard", Active: "dashboard", Country: country, Stats: stats}
+	data := pageData{Title: "Find", Active: "find", Country: country, Stats: stats, Profiles: domain.BusinessProfiles()}
 	if err != nil {
 		data.Error = err.Error()
 	}

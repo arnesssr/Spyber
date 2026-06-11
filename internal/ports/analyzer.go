@@ -8,6 +8,7 @@ type PageAnalysis struct {
 	CandidateLinks   []string
 	EcommerceSignals []string
 	EcommerceScore   int
+	Text             string
 }
 
 type Analyzer interface {

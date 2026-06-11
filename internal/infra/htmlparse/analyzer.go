@@ -17,6 +17,7 @@ type Analyzer struct{}
 var (
 	emailPattern = regexp.MustCompile(`[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}`)
 	hrefPattern  = regexp.MustCompile(`(?i)href\s*=\s*["']([^"']+)["']`)
+	tagPattern   = regexp.MustCompile(`<[^>]+>`)
 )
 
 func New() *Analyzer {
@@ -32,6 +33,7 @@ func (a *Analyzer) Analyze(baseURL string, body []byte) ports.PageAnalysis {
 		CandidateLinks:   extractCandidateLinks(baseURL, text),
 		EcommerceSignals: signals,
 		EcommerceScore:   scoreSignals(signals),
+		Text:             normalizedText(text),
 	}
 }
 
@@ -140,4 +142,15 @@ func scoreSignals(signals []string) int {
 		return 100
 	}
 	return score
+}
+
+func normalizedText(text string) string {
+	text = string(bytes.ToLower([]byte(text)))
+	text = tagPattern.ReplaceAllString(text, " ")
+	text = html.UnescapeString(text)
+	text = strings.Join(strings.Fields(text), " ")
+	if len(text) > 20000 {
+		return text[:20000]
+	}
+	return text
 }

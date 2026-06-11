@@ -43,6 +43,29 @@ func (fakeCountryFinder) FindBusinesses(ctx context.Context, countryCode string,
 	}, nil
 }
 
+type profileAnalyzer struct{}
+
+func (profileAnalyzer) Analyze(baseURL string, body []byte) ports.PageAnalysis {
+	return ports.PageAnalysis{
+		Emails:       []string{"sales@wholesale.example"},
+		ContactLinks: []string{"https://wholesale.example/contact"},
+		Text:         "wholesale supplier trade account bulk orders",
+	}
+}
+
+type profileCountryFinder struct{}
+
+func (profileCountryFinder) FindBusinesses(ctx context.Context, countryCode string, limit int) ([]ports.BusinessCandidate, error) {
+	return nil, nil
+}
+
+func (profileCountryFinder) SearchBusinesses(ctx context.Context, search ports.BusinessSearch) ([]ports.BusinessCandidate, error) {
+	return []ports.BusinessCandidate{
+		{Name: "Wholesale Example", Website: "https://wholesale.example", Email: "info@wholesale.example", SourceURL: "https://www.openstreetmap.org/node/2", Evidence: "wholesale supplier"},
+		{Name: "Wholesale Example Duplicate", Website: "https://wholesale.example/about", SourceURL: "https://example.invalid", Evidence: "duplicate"},
+	}, nil
+}
+
 func TestCrawlReviewAndExportWorkflow(t *testing.T) {
 	ctx := context.Background()
 	store := localstore.New(t.TempDir() + "/spyber.json")
@@ -132,5 +155,40 @@ func TestScrapeCountryDiscoversCrawlsAndStoresContacts(t *testing.T) {
 	}
 	if len(contacts) < 2 {
 		t.Fatalf("expected scraped contacts, got %+v", contacts)
+	}
+}
+
+func TestFindBusinessesUsesProfileAndDedupesCompanies(t *testing.T) {
+	ctx := context.Background()
+	store := localstore.New(t.TempDir() + "/spyber.json")
+	app := New(store, fakeFetcher{}, profileAnalyzer{}).WithCountryFinder(profileCountryFinder{})
+	if err := app.Init(ctx); err != nil {
+		t.Fatalf("init: %v", err)
+	}
+	summary, err := app.FindBusinesses(ctx, FindRequest{
+		CountryCode: "KE",
+		Sector:      "commerce",
+		Segment:     "wholesalers",
+		Limit:       10,
+	})
+	if err != nil {
+		t.Fatalf("find businesses: %v", err)
+	}
+	if summary.Created != 1 || summary.Duplicates != 1 || summary.Matched != 1 {
+		t.Fatalf("unexpected summary: %+v", summary)
+	}
+	companies, err := app.ListCompanies(ctx, "KE")
+	if err != nil {
+		t.Fatalf("companies: %v", err)
+	}
+	if len(companies) != 1 || companies[0].Status != "review" {
+		t.Fatalf("expected one review company, got %+v", companies)
+	}
+	contacts, err := app.ListContacts(ctx, "KE")
+	if err != nil {
+		t.Fatalf("contacts: %v", err)
+	}
+	if len(contacts) != 2 {
+		t.Fatalf("expected page and direct contacts, got %+v", contacts)
 	}
 }

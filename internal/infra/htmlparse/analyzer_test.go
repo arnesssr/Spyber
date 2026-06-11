@@ -2,7 +2,10 @@
 
 package htmlparse
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestAnalyzeExtractsSignalsEmailsAndContactLinks(t *testing.T) {
 	html := []byte(`
@@ -31,5 +34,8 @@ func TestAnalyzeExtractsSignalsEmailsAndContactLinks(t *testing.T) {
 	}
 	if analysis.EcommerceScore == 0 {
 		t.Fatal("expected ecommerce score")
+	}
+	if !strings.Contains(analysis.Text, "add to cart") {
+		t.Fatalf("expected normalized text, got %q", analysis.Text)
 	}
 }

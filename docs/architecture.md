@@ -23,7 +23,7 @@ larger handler or crawler file.
 - Replace local JSON with Postgres repositories behind `internal/ports`.
 - Add search jobs and result sets before increasing crawl volume.
 - Add durable job state before distributed workers.
-- Keep provider integrations behind `CountryFinder` or similar ports.
+- Keep provider integrations behind `CountryFinder` and `BusinessSearcher`.
 - Keep scoring/profile rules in app/domain code, not templates.
 - Add metrics around discovery, dedupe, crawl success, match rate, and export.
 - Keep live-network checks outside `make test`.
@@ -35,11 +35,11 @@ so the engine can run before database wiring is added.
 
 ## Workflow
 
-1. Receive country, business intent, and limit.
+1. Receive country, profile or query, and limit.
 2. Discover candidates from country data, source pages, or manual sources.
 3. Canonicalize and dedupe companies.
 4. Crawl public pages with safe defaults.
-5. Score evidence against the business intent.
+5. Score evidence against the selected business profile.
 6. Extract public contacts with source URLs.
 7. Reject non-matching businesses before export.
 8. Verify, review, suppress, and export compliant records.

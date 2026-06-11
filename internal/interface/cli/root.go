@@ -77,6 +77,10 @@ func (r *runner) run(ctx context.Context, args []string) error {
 	switch args[0] {
 	case "init":
 		return r.init(ctx)
+	case "find":
+		return r.find(ctx, args[1:])
+	case "profiles":
+		return r.profiles(ctx)
 	case "scrape":
 		return r.scrape(ctx, args[1:])
 	case "source":
@@ -376,6 +380,9 @@ func usage(w io.Writer) {
 		"",
 		"commands:",
 		"  init",
+		"  profiles",
+		"  find --country KE --sector commerce --segment wholesalers --limit 50",
+		"  find --country KE --query salon --limit 50",
 		"  scrape --country KE --limit 50",
 		"  source add --country GB --type seed --url https://example.com",
 		"  source list --country GB",

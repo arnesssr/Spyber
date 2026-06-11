@@ -1,15 +1,26 @@
 {{define "content"}}
 <section class="page-head">
   <div>
-    <h1>Dashboard</h1>
-    <p>Country {{.Country}} · review data before export.</p>
+    <h1>Find businesses</h1>
+    <p>{{.Country}} · choose a business type or search term.</p>
   </div>
-  <form method="post" action="/scrape">
-    <input type="hidden" name="country" value="{{.Country}}">
-    <input type="hidden" name="limit" value="20">
-    <button type="submit">Scrape country</button>
-  </form>
 </section>
+
+<form class="find-form" method="post" action="/find">
+  <input type="hidden" name="country" value="{{.Country}}">
+  <label>Business type
+    <select name="profile">
+      {{range .Profiles}}<option value="{{.Sector}}/{{.Segment}}">{{.Label}}</option>{{end}}
+    </select>
+  </label>
+  <label>Custom search
+    <input name="query" placeholder="salon, distributor, cosmetics">
+  </label>
+  <label>Limit
+    <input name="limit" type="number" min="1" max="250" value="50">
+  </label>
+  <button type="submit">Find businesses</button>
+</form>
 
 <section class="metrics" aria-label="Status">
   <div><strong>{{.Stats.Sources}}</strong><span>Sources</span></div>
@@ -23,17 +34,22 @@
 <section class="split">
   <div class="panel">
     <h2>Next actions</h2>
+    <form method="post" action="/scrape">
+      <input type="hidden" name="country" value="{{.Country}}">
+      <input type="hidden" name="limit" value="20">
+      <button type="submit" class="secondary">Broad ecommerce scrape</button>
+    </form>
     <form method="post" action="/discover/sources">
       <input type="hidden" name="country" value="{{.Country}}">
-      <button type="submit">Discover from sources</button>
+      <button type="submit" class="secondary">Discover from sources</button>
     </form>
     <form method="post" action="/crawl">
       <input type="hidden" name="country" value="{{.Country}}">
-      <button type="submit">Crawl existing</button>
+      <button type="submit" class="secondary">Crawl existing</button>
     </form>
     <form method="post" action="/contacts/verify">
       <input type="hidden" name="country" value="{{.Country}}">
-      <button type="submit">Verify contacts</button>
+      <button type="submit" class="secondary">Verify contacts</button>
     </form>
   </div>
   <div class="panel">

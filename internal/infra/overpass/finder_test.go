@@ -2,7 +2,10 @@
 
 package overpass
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestParseBusinessCandidates(t *testing.T) {
 	data := []byte(`{
@@ -21,5 +24,18 @@ func TestParseBusinessCandidates(t *testing.T) {
 	}
 	if candidates[1].Website != "https://shop-b.example" {
 		t.Fatalf("unexpected second website: %s", candidates[1].Website)
+	}
+}
+
+func TestQueryUsesSearchTerms(t *testing.T) {
+	got := query("KE", []string{"salon"}, 5)
+	if !strings.Contains(got, `["shop"~"hairdresser|beauty|beauty_salon"]`) {
+		t.Fatalf("expected salon shop filter, got %s", got)
+	}
+	if !strings.Contains(got, `salon`) {
+		t.Fatalf("expected salon name filter, got %s", got)
+	}
+	if strings.Contains(got, `"spa",i`) {
+		t.Fatalf("expected bounded term regex, got %s", got)
 	}
 }

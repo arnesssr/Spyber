@@ -30,6 +30,14 @@ This verifies that country discovery, crawling, contact extraction, and export
 still work together against real public data. Results can vary because external
 websites and public indexes change.
 
+Profile-driven checks can also be run manually:
+
+```bash
+SPYBER_STORE=/tmp/spyber-find.json go run ./cmd/spyber init
+SPYBER_STORE=/tmp/spyber-find.json go run ./cmd/spyber find --country KE --query salon --limit 5
+SPYBER_STORE=/tmp/spyber-find.json go run ./cmd/spyber contacts list --country KE
+```
+
 ## File Rule
 
 Every test file and fixture must stay under 700 lines. Split large fixtures by
