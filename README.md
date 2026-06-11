@@ -147,8 +147,9 @@ The UI is server-rendered Go HTML. It has no TypeScript or frontend build
 pipeline.
 
 Use the country field and `Find businesses` form to choose a business type,
-set a limit, and discover public business websites without knowing URLs.
-`Broad ecommerce scrape` remains available as a fallback.
+set a limit, and queue a background find job. Open `Jobs` to watch the run
+complete while the crawler discovers websites and extracts contacts. `Broad
+ecommerce scrape` remains available as a fallback.
 
 ## Literal Engine Test
 

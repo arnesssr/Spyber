@@ -27,10 +27,9 @@ SPYBER_ADMIN_TOKEN=change-me make run-ui
 
 The browser username is `admin`; the password is the token.
 
-The home screen `Find businesses` action discovers public business websites
-from country-level data and profile terms, crawls those sites, extracts
-contacts, and verifies results. Manual sources and broad ecommerce scraping are
-secondary paths.
+The home screen `Find businesses` action queues a background job. Open `Jobs`
+to watch discovery, crawl, contact extraction, and verification progress.
+Manual sources and broad ecommerce scraping are secondary paths.
 
 ## Crawl
 

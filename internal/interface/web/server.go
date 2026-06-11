@@ -41,6 +41,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("POST /crawl", s.crawl)
 	s.mux.HandleFunc("POST /find", s.findBusinesses)
 	s.mux.HandleFunc("POST /scrape", s.scrapeCountry)
+	s.mux.HandleFunc("GET /jobs", s.jobs)
 	s.mux.HandleFunc("GET /companies", s.companies)
 	s.mux.HandleFunc("GET /contacts", s.contacts)
 	s.mux.HandleFunc("POST /contacts/verify", s.verifyContacts)

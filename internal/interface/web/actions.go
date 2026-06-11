@@ -3,10 +3,12 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/waymore/spyber/internal/app"
 	"github.com/waymore/spyber/internal/domain"
@@ -66,18 +68,29 @@ func (s *Server) scrapeCountry(w http.ResponseWriter, r *http.Request) {
 func (s *Server) findBusinesses(w http.ResponseWriter, r *http.Request) {
 	country := currentCountry(r)
 	sector, segment := profileParts(r.FormValue("profile"))
-	summary, err := s.app.FindBusinesses(r.Context(), app.FindRequest{
+	job, err := s.app.CreateFindJob(r.Context(), app.FindRequest{
 		CountryCode: country,
 		Sector:      sector,
 		Segment:     segment,
 		Query:       r.FormValue("query"),
 		Limit:       formInt(r, "limit", 5),
 	})
-	notice := fmt.Sprintf("matched %d businesses, found %d contacts", summary.Matched, summary.Contacts+summary.DirectEmails)
+	notice := "find job queued"
 	if err != nil {
 		notice = err.Error()
+		redirectBack(w, r, "/", country, notice)
+		return
 	}
-	redirectBack(w, r, "/", country, notice)
+	s.runFindJob(job.ID)
+	redirectBack(w, r, "/jobs", country, notice)
+}
+
+func (s *Server) runFindJob(id domain.ID) {
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
+		_ = s.app.RunFindJob(ctx, id)
+	}()
 }
 
 func profileParts(value string) (string, string) {

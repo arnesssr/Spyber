@@ -21,6 +21,8 @@ input, select, button { min-height: 36px; border: 1px solid var(--line); border-
 button { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
 button:hover { background: var(--accent-dark); }
 button.secondary { border-color: var(--line); background: #fff; color: var(--text); }
+.button-link { display: inline-flex; align-items: center; min-height: 36px; border-radius: 6px; padding: 0 10px; background: var(--accent); color: #fff; font-weight: 700; }
+.button-link:hover { background: var(--accent-dark); color: #fff; text-decoration: none; }
 .shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: calc(100vh - 58px); }
 .nav { padding: 18px 12px; border-right: 1px solid var(--line); background: #fff; }
 .nav a { display: block; padding: 10px 12px; border-radius: 6px; color: var(--text); font-weight: 650; }
@@ -52,8 +54,16 @@ th { background: #eef3f4; color: #3a474f; font-size: 12px; text-transform: upper
 tr:last-child td { border-bottom: 0; }
 .badge { display: inline-flex; align-items: center; min-height: 24px; border-radius: 999px; background: #edf7f5; color: var(--accent-dark); padding: 0 9px; font-weight: 700; }
 .empty { color: var(--muted); text-align: center; padding: 26px; }
-.actions { display: flex; gap: 8px; }
+.danger-text { color: var(--danger); }
+.break-text { overflow-wrap: anywhere; word-break: break-word; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .actions form { margin: 0; }
+.contacts-table { table-layout: fixed; }
+.contacts-table th:nth-child(1) { width: 28%; }
+.contacts-table th:nth-child(2) { width: 10%; }
+.contacts-table th:nth-child(3) { width: 13%; }
+.contacts-table th:nth-child(4) { width: 33%; }
+.contacts-table th:nth-child(5) { width: 16%; }
 .find-form { display: grid; grid-template-columns: minmax(220px, 1.2fr) minmax(220px, 1fr) 110px auto; align-items: end; gap: 12px; margin-bottom: 18px; padding: 16px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
 .find-form label { display: grid; gap: 5px; color: var(--muted); }
 .find-form input, .find-form select { width: 100%; }
@@ -67,5 +77,7 @@ tr:last-child td { border-bottom: 0; }
   .main { padding: 16px; }
   .metrics { grid-template-columns: repeat(2, 1fr); }
   .find-form { grid-template-columns: 1fr; }
+  .actions { display: grid; grid-template-columns: 1fr; }
+  .actions button { width: 100%; }
   table { display: block; overflow-x: auto; }
 }

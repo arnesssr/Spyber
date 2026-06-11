@@ -1,0 +1,32 @@
+{{define "content"}}
+<section class="page-head">
+  <div>
+    <h1>Jobs</h1>
+    <p>{{.Country}} · running and completed find jobs.</p>
+  </div>
+  <a class="button-link" href="/?country={{.Country}}">New find</a>
+</section>
+
+<table>
+  <thead>
+    <tr><th>Job</th><th>Status</th><th>Matched</th><th>Contacts</th><th>Fetched</th><th>Failures</th></tr>
+  </thead>
+  <tbody>
+  {{range .FindJobs}}
+    <tr>
+      <td>
+        <strong>{{if .Query}}{{.Query}}{{else}}{{.Sector}}/{{.Segment}}{{end}}</strong><br>
+        <small>{{.ID}} · limit {{.Limit}}</small>
+      </td>
+      <td><span class="badge">{{.Status}}</span>{{if .FailureReason}}<br><small class="danger-text">{{.FailureReason}}</small>{{end}}</td>
+      <td>{{.Matched}}<br><small>{{.Created}} new · {{.Duplicates}} duplicates</small></td>
+      <td>{{.Contacts}}<br><small>{{.DirectEmails}} direct</small></td>
+      <td>{{.Fetched}}<br><small>{{.Candidates}} candidates</small></td>
+      <td>{{.Failures}}<br><small>{{.Rejected}} rejected</small></td>
+    </tr>
+  {{else}}
+    <tr><td colspan="6" class="empty">No jobs yet. Start a find job first.</td></tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}

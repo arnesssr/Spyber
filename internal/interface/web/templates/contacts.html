@@ -10,15 +10,15 @@
   </form>
 </section>
 
-<table>
+<table class="contacts-table">
   <thead><tr><th>Email</th><th>Type</th><th>Status</th><th>Source</th><th>Action</th></tr></thead>
   <tbody>
   {{range .Contacts}}
     <tr>
-      <td>{{.Email}}<br><small>{{.CompanyID}}</small></td>
+      <td class="break-text">{{.Email}}<br><small>{{.CompanyID}}</small></td>
       <td>{{.Type}}</td>
       <td><span class="badge">{{.Status}}</span></td>
-      <td><a href="{{.SourceURL}}">source</a></td>
+      <td class="break-text"><a href="{{.SourceURL}}">{{.SourceURL}}</a></td>
       <td class="actions">
         <form method="post" action="/contacts/approve">
           <input type="hidden" name="country" value="{{$.Country}}">

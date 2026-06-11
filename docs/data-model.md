@@ -6,10 +6,11 @@ the core shape for development.
 ## Core Entities
 
 - `sources`: allowed discovery inputs per country.
-- `companies`: normalized ecommerce business candidates.
+- `companies`: normalized business candidates.
+- `find_jobs`: profile-driven discovery and crawl runs.
 - `crawl_jobs`: crawl attempts and failure reasons.
 - `contacts`: extracted emails with source evidence.
-- `evidence`: country and ecommerce classification evidence.
+- `evidence`: country, profile, and commerce classification evidence.
 - `suppression`: contacts excluded from future export.
 - `exports`: export events and filters.
 - `audit_events`: operator and system actions.
@@ -41,5 +42,6 @@ the core shape for development.
 - unique contact email per company
 - contact status and type
 - country code
+- find job country and status
 - source URL
 - suppression email

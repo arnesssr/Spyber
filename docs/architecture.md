@@ -36,19 +36,21 @@ so the engine can run before database wiring is added.
 ## Workflow
 
 1. Receive country, profile or query, and limit.
-2. Discover candidates from country data, source pages, or manual sources.
-3. Canonicalize and dedupe companies.
-4. Crawl public pages with safe defaults.
-5. Score evidence against the selected business profile.
-6. Extract public contacts with source URLs.
-7. Reject non-matching businesses before export.
-8. Verify, review, suppress, and export compliant records.
-9. Maintain suppression and audit history.
+2. Persist a find job for UI progress and auditability.
+3. Discover candidates from country data, source pages, or manual sources.
+4. Canonicalize and dedupe companies.
+5. Crawl public pages with safe defaults.
+6. Score evidence against the selected business profile.
+7. Extract public contacts with source URLs.
+8. Reject non-matching businesses before export.
+9. Verify, review, suppress, and export compliant records.
+10. Maintain suppression and audit history.
 
 ## Invariants
 
 - A company must have a normalized website host.
 - A contact must have a source URL and company ID.
+- A UI find action must create a job before network work starts.
 - Suppressed contacts must never be exported.
 - Rejected companies must not contribute export rows.
 - Export records must include filters and timestamps.

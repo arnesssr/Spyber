@@ -23,6 +23,7 @@ type state struct {
 	Companies    []domain.Company      `json:"companies"`
 	Contacts     []domain.Contact      `json:"contacts"`
 	CrawlJobs    []domain.CrawlJob     `json:"crawl_jobs"`
+	FindJobs     []domain.FindJob      `json:"find_jobs"`
 	Evidence     []domain.Evidence     `json:"evidence"`
 	Suppressions []domain.Suppression  `json:"suppressions"`
 	Exports      []domain.ExportRecord `json:"exports"`
@@ -211,6 +212,47 @@ func (s *Store) ListCrawlJobs(ctx context.Context, countryCode string) ([]domain
 	for _, item := range st.CrawlJobs {
 		if companyCountry[item.CompanyID] == countryCode {
 			out = append(out, item)
+		}
+	}
+	return out, nil
+}
+
+func (s *Store) UpsertFindJob(ctx context.Context, job domain.FindJob) error {
+	return s.update(ctx, func(st *state) error {
+		for i, existing := range st.FindJobs {
+			if existing.ID == job.ID {
+				job.CreatedAt = existing.CreatedAt
+				st.FindJobs[i] = job
+				return nil
+			}
+		}
+		st.FindJobs = append(st.FindJobs, job)
+		return nil
+	})
+}
+
+func (s *Store) GetFindJob(ctx context.Context, id domain.ID) (domain.FindJob, bool, error) {
+	st, err := s.read(ctx)
+	if err != nil {
+		return domain.FindJob{}, false, err
+	}
+	for _, item := range st.FindJobs {
+		if item.ID == id {
+			return item, true, nil
+		}
+	}
+	return domain.FindJob{}, false, nil
+}
+
+func (s *Store) ListFindJobs(ctx context.Context, countryCode string) ([]domain.FindJob, error) {
+	st, err := s.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var out []domain.FindJob
+	for i := len(st.FindJobs) - 1; i >= 0; i-- {
+		if st.FindJobs[i].CountryCode == countryCode {
+			out = append(out, st.FindJobs[i])
 		}
 	}
 	return out, nil

@@ -40,6 +40,17 @@ func (s *Server) companies(w http.ResponseWriter, r *http.Request) {
 	s.render(w, r, "companies", data)
 }
 
+func (s *Server) jobs(w http.ResponseWriter, r *http.Request) {
+	country := currentCountry(r)
+	stats, _ := s.app.DashboardStats(r.Context(), country)
+	jobs, err := s.app.ListFindJobs(r.Context(), country)
+	data := pageData{Title: "Jobs", Active: "jobs", Country: country, Stats: stats, FindJobs: jobs, AutoRefresh: hasRunningJobs(jobs)}
+	if err != nil {
+		data.Error = err.Error()
+	}
+	s.render(w, r, "jobs", data)
+}
+
 func (s *Server) contacts(w http.ResponseWriter, r *http.Request) {
 	country := currentCountry(r)
 	stats, _ := s.app.DashboardStats(r.Context(), country)
@@ -49,6 +60,15 @@ func (s *Server) contacts(w http.ResponseWriter, r *http.Request) {
 		data.Error = err.Error()
 	}
 	s.render(w, r, "contacts", data)
+}
+
+func hasRunningJobs(jobs []domain.FindJob) bool {
+	for _, job := range jobs {
+		if job.Status == domain.JobQueued || job.Status == domain.JobRunning {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Server) exports(w http.ResponseWriter, r *http.Request) {

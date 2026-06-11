@@ -32,6 +32,32 @@ CREATE TABLE crawl_jobs (
   created_at TIMESTAMPTZ NOT NULL
 );
 
+CREATE TABLE find_jobs (
+  id TEXT PRIMARY KEY,
+  country_code TEXT NOT NULL,
+  sector TEXT NOT NULL,
+  segment TEXT NOT NULL,
+  query TEXT NOT NULL DEFAULT '',
+  limit_count INTEGER NOT NULL,
+  status TEXT NOT NULL,
+  profile_key TEXT NOT NULL DEFAULT '',
+  candidates INTEGER NOT NULL DEFAULT 0,
+  created INTEGER NOT NULL DEFAULT 0,
+  duplicates INTEGER NOT NULL DEFAULT 0,
+  matched INTEGER NOT NULL DEFAULT 0,
+  rejected INTEGER NOT NULL DEFAULT 0,
+  fetched INTEGER NOT NULL DEFAULT 0,
+  contacts INTEGER NOT NULL DEFAULT 0,
+  direct_emails INTEGER NOT NULL DEFAULT 0,
+  verified INTEGER NOT NULL DEFAULT 0,
+  failures INTEGER NOT NULL DEFAULT 0,
+  failure_reason TEXT NOT NULL DEFAULT '',
+  started_at TIMESTAMPTZ,
+  finished_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+
 CREATE TABLE contacts (
   id TEXT PRIMARY KEY,
   company_id TEXT NOT NULL REFERENCES companies(id),

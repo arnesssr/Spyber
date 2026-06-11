@@ -21,6 +21,9 @@ type Store interface {
 	GetContact(ctx context.Context, id domain.ID) (domain.Contact, bool, error)
 	AddCrawlJob(ctx context.Context, job domain.CrawlJob) error
 	ListCrawlJobs(ctx context.Context, countryCode string) ([]domain.CrawlJob, error)
+	UpsertFindJob(ctx context.Context, job domain.FindJob) error
+	GetFindJob(ctx context.Context, id domain.ID) (domain.FindJob, bool, error)
+	ListFindJobs(ctx context.Context, countryCode string) ([]domain.FindJob, error)
 	AddEvidence(ctx context.Context, evidence domain.Evidence) error
 	ListEvidence(ctx context.Context, companyID domain.ID) ([]domain.Evidence, error)
 	AddSuppression(ctx context.Context, suppression domain.Suppression) error

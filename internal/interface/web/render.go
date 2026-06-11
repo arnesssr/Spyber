@@ -23,6 +23,8 @@ type pageData struct {
 	Contacts     []domain.Contact
 	Suppressions []domain.Suppression
 	Profiles     []domain.BusinessProfile
+	FindJobs     []domain.FindJob
+	AutoRefresh  bool
 }
 
 func (s *Server) render(w http.ResponseWriter, r *http.Request, page string, data pageData) {

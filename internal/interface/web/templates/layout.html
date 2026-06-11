@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{if .AutoRefresh}}<meta http-equiv="refresh" content="5">{{end}}
   <title>{{.Title}} · Spyber</title>
   <link rel="stylesheet" href="/static/app.css">
 </head>
@@ -19,6 +20,7 @@
   <div class="shell">
     <nav class="nav" aria-label="Primary">
       <a {{if eq .Active "find"}}class="active"{{end}} href="/?country={{.Country}}">Find</a>
+      <a {{if eq .Active "jobs"}}class="active"{{end}} href="/jobs?country={{.Country}}">Jobs</a>
       <a {{if eq .Active "sources"}}class="active"{{end}} href="/sources?country={{.Country}}">Sources</a>
       <a {{if eq .Active "companies"}}class="active"{{end}} href="/companies?country={{.Country}}">Companies</a>
       <a {{if eq .Active "contacts"}}class="active"{{end}} href="/contacts?country={{.Country}}">Contacts</a>
