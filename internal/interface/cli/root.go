@@ -13,9 +13,12 @@ import (
 
 	"github.com/waymore/spyber/internal/app"
 	"github.com/waymore/spyber/internal/domain"
+	"github.com/waymore/spyber/internal/infra/commoncrawl"
+	"github.com/waymore/spyber/internal/infra/countryfinders"
 	"github.com/waymore/spyber/internal/infra/htmlparse"
 	"github.com/waymore/spyber/internal/infra/httpfetch"
 	"github.com/waymore/spyber/internal/infra/localstore"
+	"github.com/waymore/spyber/internal/infra/overpass"
 )
 
 func Main(args []string, stdout, stderr io.Writer) int {
@@ -24,7 +27,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	runner := newRunner(stdout, stderr)
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	if err := runner.run(ctx, args); err != nil {
 		fmt.Fprintln(stderr, "error:", err)
@@ -44,7 +47,7 @@ func newRunner(out, err io.Writer) *runner {
 	return &runner{
 		out: out,
 		err: err,
-		app: app.New(store, httpfetch.New(), htmlparse.New()),
+		app: app.New(store, httpfetch.New(), htmlparse.New()).WithCountryFinder(countryFinder()),
 	}
 }
 
@@ -55,10 +58,27 @@ func storePath() string {
 	return ".spyber/spyber.json"
 }
 
+func overpassEndpoint() string {
+	return os.Getenv("SPYBER_OVERPASS_ENDPOINT")
+}
+
+func commonCrawlIndex() string {
+	return os.Getenv("SPYBER_COMMONCRAWL_INDEX")
+}
+
+func countryFinder() *countryfinders.Multi {
+	return countryfinders.New(
+		overpass.New(overpassEndpoint()),
+		commoncrawl.New(commonCrawlIndex()),
+	)
+}
+
 func (r *runner) run(ctx context.Context, args []string) error {
 	switch args[0] {
 	case "init":
 		return r.init(ctx)
+	case "scrape":
+		return r.scrape(ctx, args[1:])
 	case "source":
 		return r.source(ctx, args[1:])
 	case "discover":
@@ -79,6 +99,22 @@ func (r *runner) run(ctx context.Context, args []string) error {
 		usage(r.err)
 		return fmt.Errorf("unknown command %q", args[0])
 	}
+}
+
+func (r *runner) scrape(ctx context.Context, args []string) error {
+	fs := flag.NewFlagSet("scrape", flag.ContinueOnError)
+	fs.SetOutput(r.err)
+	country := fs.String("country", "", "country code")
+	limit := fs.Int("limit", 50, "maximum country candidates")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	summary, err := r.app.ScrapeCountry(ctx, *country, *limit)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(r.out, "discovered=%d direct_emails=%d crawled=%d fetched=%d contacts=%d verified=%d failures=%d\n", summary.Discovered, summary.DirectEmails, summary.Crawled, summary.Fetched, summary.Contacts, summary.Verified, summary.Failures)
+	return nil
 }
 
 func (r *runner) init(ctx context.Context) error {
@@ -340,6 +376,7 @@ func usage(w io.Writer) {
 		"",
 		"commands:",
 		"  init",
+		"  scrape --country KE --limit 50",
 		"  source add --country GB --type seed --url https://example.com",
 		"  source list --country GB",
 		"  discover --country GB --domain https://shop.example",

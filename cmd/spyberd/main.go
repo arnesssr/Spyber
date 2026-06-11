@@ -10,9 +10,12 @@ import (
 	"os"
 
 	"github.com/waymore/spyber/internal/app"
+	"github.com/waymore/spyber/internal/infra/commoncrawl"
+	"github.com/waymore/spyber/internal/infra/countryfinders"
 	"github.com/waymore/spyber/internal/infra/htmlparse"
 	"github.com/waymore/spyber/internal/infra/httpfetch"
 	"github.com/waymore/spyber/internal/infra/localstore"
+	"github.com/waymore/spyber/internal/infra/overpass"
 	"github.com/waymore/spyber/internal/interface/web"
 )
 
@@ -22,7 +25,11 @@ func main() {
 	flag.Parse()
 
 	store := localstore.New(*storePath)
-	application := app.New(store, httpfetch.New(), htmlparse.New())
+	finder := countryfinders.New(
+		overpass.New(os.Getenv("SPYBER_OVERPASS_ENDPOINT")),
+		commoncrawl.New(os.Getenv("SPYBER_COMMONCRAWL_INDEX")),
+	)
+	application := app.New(store, httpfetch.New(), htmlparse.New()).WithCountryFinder(finder)
 	if err := application.Init(context.Background()); err != nil {
 		log.Fatal(err)
 	}

@@ -118,7 +118,12 @@ func ecommerceSignals(text string) []string {
 		"woocommerce": "woocommerce",
 		"magento":     "magento",
 		"product":     "product",
+		"product_cat": "product-category",
 		"sku":         "sku",
+		"wishlist":    "add to wishlist",
+		"out_stock":   "out of stock",
+		"buy_now":     "buy now",
+		"ksh_price":   "ksh",
 	}
 	var out []string
 	for signal, needle := range checks {

@@ -36,6 +36,7 @@ V1 focuses on:
 ```bash
 go test ./...
 go run ./cmd/spyber init
+go run ./cmd/spyber scrape --country KE --limit 50
 go run ./cmd/spyber source add --country GB --type seed --url https://example.com
 go run ./cmd/spyber discover --country GB --domain https://shop.example
 go run ./cmd/spyber crawl --country GB
@@ -69,10 +70,15 @@ SPYBER_ADMIN_TOKEN=change-me make run-ui
 The UI is server-rendered Go HTML. It has no TypeScript or frontend build
 pipeline.
 
+Use the dashboard country field and click `Scrape country` to discover public
+business websites, crawl them, extract contacts, and populate review/export
+tables.
+
 ## Safety Defaults
 
 - only `http` and `https` URLs are accepted
 - private, loopback, and link-local hosts are blocked by the fetcher by default
+- country discovery uses public OpenStreetMap/Overpass shop tags and Common Crawl country TLD indexes
 - every contact must keep its source URL
 - exports exclude suppressed contacts
 - source and export actions are audit logged

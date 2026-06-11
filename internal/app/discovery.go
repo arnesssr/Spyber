@@ -149,6 +149,8 @@ func candidateAllowed(raw string) bool {
 		"facebook.", "instagram.", "linkedin.", "tiktok.", "twitter.",
 		"x.com", "youtube.", "google.", "schema.org", "w3.org",
 		"cloudflare.", "shopify.com", "wordpress.org",
+		"1-win", "1win", "bet", "casino", "gambl",
+		"sexy", "porn", "adult",
 	}
 	for _, item := range blocked {
 		if strings.Contains(host, item) {

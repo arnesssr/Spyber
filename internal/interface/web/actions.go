@@ -5,6 +5,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/waymore/spyber/internal/app"
 	"github.com/waymore/spyber/internal/domain"
@@ -48,6 +49,25 @@ func (s *Server) crawl(w http.ResponseWriter, r *http.Request) {
 		notice = err.Error()
 	}
 	redirectBack(w, r, "/", country, notice)
+}
+
+func (s *Server) scrapeCountry(w http.ResponseWriter, r *http.Request) {
+	country := currentCountry(r)
+	limit := formInt(r, "limit", 20)
+	summary, err := s.app.ScrapeCountry(r.Context(), country, limit)
+	notice := fmt.Sprintf("discovered %d, fetched %d pages, found %d contacts", summary.Discovered, summary.Fetched, summary.Contacts+summary.DirectEmails)
+	if err != nil {
+		notice = err.Error()
+	}
+	redirectBack(w, r, "/", country, notice)
+}
+
+func formInt(r *http.Request, key string, fallback int) int {
+	value, err := strconv.Atoi(r.FormValue(key))
+	if err != nil || value <= 0 {
+		return fallback
+	}
+	return value
 }
 
 func (s *Server) verifyContacts(w http.ResponseWriter, r *http.Request) {

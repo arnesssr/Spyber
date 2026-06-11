@@ -62,6 +62,8 @@ func (a *App) crawlCompany(ctx context.Context, company domain.Company) (int, in
 	company.UpdatedAt = a.now().UTC()
 	if company.EcommerceScore >= 40 {
 		company.Status = domain.CompanyReview
+	} else {
+		company.Status = domain.CompanyRejected
 	}
 	_ = a.store.UpsertCompany(ctx, company)
 	a.finishJob(ctx, job, domain.JobSucceeded, "")
@@ -74,13 +76,16 @@ func (a *App) fetchAndAnalyze(ctx context.Context, company domain.Company, rawUR
 		return 0, 0, 0, err
 	}
 	analysis := a.analyzer.Analyze(result.URL, result.Body)
-	contacts := a.storeContacts(ctx, company.ID, result.URL, analysis.Emails)
 	for _, signal := range analysis.EcommerceSignals {
 		evidence, err := domain.NewEvidence(company.ID, "ecommerce", signal, result.URL, 70, a.now())
 		if err == nil {
 			_ = a.store.AddEvidence(ctx, evidence)
 		}
 	}
+	if analysis.EcommerceScore < 40 {
+		return 1, 0, len(analysis.EcommerceSignals), nil
+	}
+	contacts := a.storeContacts(ctx, company.ID, result.URL, analysis.Emails)
 	totalFetched := 1
 	totalContacts := contacts
 	for i, link := range analysis.ContactLinks {

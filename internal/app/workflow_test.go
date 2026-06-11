@@ -35,6 +35,14 @@ func (discoveryAnalyzer) Analyze(baseURL string, body []byte) ports.PageAnalysis
 	}
 }
 
+type fakeCountryFinder struct{}
+
+func (fakeCountryFinder) FindBusinesses(ctx context.Context, countryCode string, limit int) ([]ports.BusinessCandidate, error) {
+	return []ports.BusinessCandidate{
+		{Name: "Shop A", Website: "https://shop-a.example", Email: "sales@shop-a.example", SourceURL: "https://www.openstreetmap.org/node/1", Evidence: "test"},
+	}, nil
+}
+
 func TestCrawlReviewAndExportWorkflow(t *testing.T) {
 	ctx := context.Background()
 	store := localstore.New(t.TempDir() + "/spyber.json")
@@ -101,5 +109,28 @@ func TestDiscoverFromSourcesCreatesFilteredCompanies(t *testing.T) {
 	}
 	if len(companies) != 1 || companies[0].NormalizedHost != "shop-a.example" {
 		t.Fatalf("unexpected companies: %+v", companies)
+	}
+}
+
+func TestScrapeCountryDiscoversCrawlsAndStoresContacts(t *testing.T) {
+	ctx := context.Background()
+	store := localstore.New(t.TempDir() + "/spyber.json")
+	app := New(store, fakeFetcher{}, fakeAnalyzer{}).WithCountryFinder(fakeCountryFinder{})
+	if err := app.Init(ctx); err != nil {
+		t.Fatalf("init: %v", err)
+	}
+	summary, err := app.ScrapeCountry(ctx, "KE", 10)
+	if err != nil {
+		t.Fatalf("scrape country: %v", err)
+	}
+	if summary.Discovered != 1 || summary.Crawled != 1 {
+		t.Fatalf("unexpected summary: %+v", summary)
+	}
+	contacts, err := app.ListContacts(ctx, "KE")
+	if err != nil {
+		t.Fatalf("contacts: %v", err)
+	}
+	if len(contacts) < 2 {
+		t.Fatalf("expected scraped contacts, got %+v", contacts)
 	}
 }

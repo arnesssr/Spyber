@@ -32,6 +32,11 @@ func (a *App) ExportContacts(ctx context.Context, opts ExportOptions) ([]byte, i
 	if err != nil {
 		return nil, 0, err
 	}
+	companies, err := a.store.ListCompanies(ctx, country)
+	if err != nil {
+		return nil, 0, err
+	}
+	eligibleCompanies := exportableCompanies(companies)
 	suppressions, err := a.store.ListSuppressions(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -45,7 +50,7 @@ func (a *App) ExportContacts(ctx context.Context, opts ExportOptions) ([]byte, i
 	_ = writer.Write([]string{"email", "type", "status", "source_url", "company_id"})
 	rows := 0
 	for _, contact := range contacts {
-		if !exportable(contact, opts.Only, suppressed) {
+		if !exportable(contact, opts.Only, suppressed, eligibleCompanies) {
 			continue
 		}
 		_ = writer.Write([]string{
@@ -71,8 +76,11 @@ func (a *App) ExportContacts(ctx context.Context, opts ExportOptions) ([]byte, i
 	return out.Bytes(), rows, writer.Error()
 }
 
-func exportable(contact domain.Contact, only string, suppressed map[string]bool) bool {
+func exportable(contact domain.Contact, only string, suppressed map[string]bool, eligibleCompanies map[domain.ID]bool) bool {
 	if suppressed[contact.Email] || contact.Status == domain.ContactSuppressed {
+		return false
+	}
+	if !eligibleCompanies[contact.CompanyID] {
 		return false
 	}
 	if contact.Status != domain.ContactApproved && contact.Status != domain.ContactNeedsReview {
@@ -82,4 +90,14 @@ func exportable(contact domain.Contact, only string, suppressed map[string]bool)
 		return false
 	}
 	return true
+}
+
+func exportableCompanies(companies []domain.Company) map[domain.ID]bool {
+	eligible := map[domain.ID]bool{}
+	for _, company := range companies {
+		if company.EcommerceScore >= 40 || company.Status == domain.CompanyApproved || company.Status == domain.CompanyReview {
+			eligible[company.ID] = true
+		}
+	}
+	return eligible
 }

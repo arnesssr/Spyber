@@ -38,6 +38,8 @@ h2 { margin-bottom: 12px; font-size: 16px; }
 .metrics strong { display: block; font-size: 24px; }
 .metrics span { color: var(--muted); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.panel form { margin: 0 0 10px; }
+.panel form:last-child { margin-bottom: 0; }
 .compact { display: grid; grid-template-columns: 1fr auto; gap: 8px 18px; margin: 0; }
 .compact dt { color: var(--muted); }
 .compact dd { margin: 0; font-weight: 700; }

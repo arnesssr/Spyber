@@ -4,9 +4,10 @@
     <h1>Dashboard</h1>
     <p>Country {{.Country}} · review data before export.</p>
   </div>
-  <form method="post" action="/crawl">
+  <form method="post" action="/scrape">
     <input type="hidden" name="country" value="{{.Country}}">
-    <button type="submit">Crawl country</button>
+    <input type="hidden" name="limit" value="20">
+    <button type="submit">Scrape country</button>
   </form>
 </section>
 
@@ -25,6 +26,10 @@
     <form method="post" action="/discover/sources">
       <input type="hidden" name="country" value="{{.Country}}">
       <button type="submit">Discover from sources</button>
+    </form>
+    <form method="post" action="/crawl">
+      <input type="hidden" name="country" value="{{.Country}}">
+      <button type="submit">Crawl existing</button>
     </form>
     <form method="post" action="/contacts/verify">
       <input type="hidden" name="country" value="{{.Country}}">

@@ -5,6 +5,7 @@ package web
 import (
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/waymore/spyber/internal/app"
 	"github.com/waymore/spyber/internal/domain"
@@ -44,7 +45,7 @@ func currentCountry(r *http.Request) string {
 	if country == "" {
 		country = "GB"
 	}
-	return country
+	return strings.ToUpper(strings.TrimSpace(country))
 }
 
 func redirectBack(w http.ResponseWriter, r *http.Request, path, country, notice string) {

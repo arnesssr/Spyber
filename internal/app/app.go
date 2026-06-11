@@ -11,10 +11,11 @@ import (
 )
 
 type App struct {
-	store    ports.Store
-	fetcher  ports.Fetcher
-	analyzer ports.Analyzer
-	now      func() time.Time
+	store         ports.Store
+	fetcher       ports.Fetcher
+	analyzer      ports.Analyzer
+	countryFinder ports.CountryFinder
+	now           func() time.Time
 }
 
 func New(store ports.Store, fetcher ports.Fetcher, analyzer ports.Analyzer) *App {
@@ -24,6 +25,11 @@ func New(store ports.Store, fetcher ports.Fetcher, analyzer ports.Analyzer) *App
 		analyzer: analyzer,
 		now:      time.Now,
 	}
+}
+
+func (a *App) WithCountryFinder(finder ports.CountryFinder) *App {
+	a.countryFinder = finder
+	return a
 }
 
 func (a *App) Init(ctx context.Context) error {

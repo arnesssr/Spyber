@@ -23,13 +23,14 @@ so the engine can run before database wiring is added.
 ## Workflow
 
 1. Add allowed sources for a country.
-2. Discover candidate company domains manually or from source pages.
-3. Crawl public pages with safe defaults.
-4. Classify ecommerce evidence.
-5. Extract public emails with source URLs.
-6. Verify and review contacts.
-7. Export only compliant records.
-8. Maintain suppression and audit history.
+2. Or run country discovery from public OpenStreetMap/Overpass shop tags and Common Crawl country TLD indexes.
+3. Discover candidate company domains manually, from source pages, or country data.
+4. Crawl public pages with safe defaults.
+5. Classify ecommerce evidence.
+6. Extract public emails with source URLs.
+7. Verify and review contacts.
+8. Export only compliant records.
+9. Maintain suppression and audit history.
 
 ## Invariants
 
