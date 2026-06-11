@@ -105,6 +105,7 @@ Rejected businesses and suppressed contacts must not contribute export rows.
 
 ## Current Limits
 
+- PostgreSQL is the reliable store when `SPYBER_DATABASE_URL` is set.
 - Local JSON storage is for development, not high-volume production.
 - Browser automation is not part of the default fetch path yet.
 - Phone and WhatsApp extraction are not implemented yet.

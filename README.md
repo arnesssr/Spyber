@@ -5,6 +5,8 @@ intent, it discovers candidate businesses, crawls public websites, classifies
 evidence, extracts public contact channels, and exports reviewable business
 contacts with source evidence.
 
+Current version: `0.2.0`
+
 ## Scope
 
 Spyber is not a bulk spam tool and does not claim to find every business in a
@@ -55,8 +57,8 @@ exploration, for example `--query salon`.
 ## Stack
 
 - Go only for the CLI, engine, and server-rendered UI
-- Postgres as the intended production source of truth
-- local JSON store for early development
+- PostgreSQL as the reliable source of truth when `SPYBER_DATABASE_URL` is set
+- local JSON store as a lightweight fallback only
 - no TypeScript or frontend build system in v1
 
 ## Quick Start
@@ -64,6 +66,7 @@ exploration, for example `--query salon`.
 ```bash
 go test ./...
 go run ./cmd/spyber init
+go run ./cmd/spyber version
 go run ./cmd/spyber profiles
 go run ./cmd/spyber find --country KE --sector commerce --segment wholesalers --limit 50
 go run ./cmd/spyber find --country KE --query salon --limit 50
@@ -73,6 +76,13 @@ go run ./cmd/spyber export --country KE --format csv --only generic
 ```
 
 The default local store is `.spyber/spyber.json`.
+
+Use PostgreSQL locally or in production:
+
+```bash
+export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
+go run ./cmd/spyber init
+```
 
 Manual source workflow:
 
@@ -161,6 +171,7 @@ make lines
 - [Developers](DEVELOPERS.md)
 - [Contributing](CONTRIBUTING.md)
 - [Testing](tests/README.md)
+- [Changelog](CHANGELOG.md)
 
 ---
 

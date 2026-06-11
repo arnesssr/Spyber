@@ -23,7 +23,7 @@ services, and prints results.
 The architecture should grow by strengthening boundaries, not by creating a
 larger handler or crawler file.
 
-- Replace local JSON with Postgres repositories behind `internal/ports`.
+- Keep PostgreSQL repositories behind `internal/ports`; keep JSON as a local fallback only.
 - Add durable fetch queues before increasing crawl volume further.
 - Add durable job state before distributed workers.
 - Keep provider integrations behind `CountryFinder` and `BusinessSearcher`.
@@ -33,8 +33,9 @@ larger handler or crawler file.
 
 ## Source Of Truth
 
-Production should use Postgres. The development scaffold uses a local JSON store
-so the engine can run before database wiring is added.
+PostgreSQL is the reliable source of truth when `SPYBER_DATABASE_URL` is set.
+The JSON store remains a fallback for lightweight local runs, not the preferred
+engine store.
 
 ## Workflow
 

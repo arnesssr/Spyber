@@ -1,7 +1,7 @@
 # Data Model
 
-Postgres is the intended durable source of truth. The local JSON store mirrors
-the core shape for development.
+PostgreSQL is the reliable source of truth when `SPYBER_DATABASE_URL` is set.
+The local JSON store mirrors the core shape only as a lightweight fallback.
 
 ## Core Entities
 

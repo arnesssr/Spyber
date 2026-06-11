@@ -58,6 +58,13 @@ Rejected businesses and suppressed contacts must not export.
   committing.
 - Use `make live-test-ke` when changing discovery, crawling, scoring, or export.
 
+## Versioning Rules
+
+- Keep the current release in `VERSION`.
+- Keep `internal/version/version.go` in sync with `VERSION`.
+- Add user-visible changes to `CHANGELOG.md`.
+- Tag releases as `vX.Y.Z` so GitHub shows the version in repository tags.
+
 ## Public Docs
 
 There are no secret product docs in this repo. Anything committed under `docs/`

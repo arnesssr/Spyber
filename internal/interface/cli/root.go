@@ -17,8 +17,9 @@ import (
 	"github.com/waymore/spyber/internal/infra/countryfinders"
 	"github.com/waymore/spyber/internal/infra/htmlparse"
 	"github.com/waymore/spyber/internal/infra/httpfetch"
-	"github.com/waymore/spyber/internal/infra/localstore"
 	"github.com/waymore/spyber/internal/infra/overpass"
+	"github.com/waymore/spyber/internal/infra/storeconfig"
+	"github.com/waymore/spyber/internal/version"
 )
 
 func Main(args []string, stdout, stderr io.Writer) int {
@@ -26,7 +27,15 @@ func Main(args []string, stdout, stderr io.Writer) int {
 		usage(stderr)
 		return 2
 	}
-	runner := newRunner(stdout, stderr)
+	if args[0] == "version" {
+		fmt.Fprintf(stdout, "spyber %s\n", version.Version)
+		return 0
+	}
+	runner, err := newRunner(stdout, stderr)
+	if err != nil {
+		fmt.Fprintln(stderr, "error:", err)
+		return 1
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	if err := runner.run(ctx, args); err != nil {
@@ -37,25 +46,23 @@ func Main(args []string, stdout, stderr io.Writer) int {
 }
 
 type runner struct {
-	out io.Writer
-	err io.Writer
-	app *app.App
+	out        io.Writer
+	err        io.Writer
+	app        *app.App
+	storeLabel string
 }
 
-func newRunner(out, err io.Writer) *runner {
-	store := localstore.New(storePath())
+func newRunner(out, err io.Writer) (*runner, error) {
+	store, storeErr := storeconfig.Open()
+	if storeErr != nil {
+		return nil, storeErr
+	}
 	return &runner{
-		out: out,
-		err: err,
-		app: app.New(store, httpfetch.New(), htmlparse.New()).WithCountryFinder(countryFinder()),
-	}
-}
-
-func storePath() string {
-	if value := os.Getenv("SPYBER_STORE"); value != "" {
-		return value
-	}
-	return ".spyber/spyber.json"
+		out:        out,
+		err:        err,
+		app:        app.New(store.Store, httpfetch.New(), htmlparse.New()).WithCountryFinder(countryFinder()),
+		storeLabel: store.Label,
+	}, nil
 }
 
 func overpassEndpoint() string {
@@ -77,6 +84,8 @@ func (r *runner) run(ctx context.Context, args []string) error {
 	switch args[0] {
 	case "init":
 		return r.init(ctx)
+	case "version":
+		return r.version()
 	case "find":
 		return r.find(ctx, args[1:])
 	case "profiles":
@@ -125,7 +134,12 @@ func (r *runner) init(ctx context.Context) error {
 	if err := r.app.Init(ctx); err != nil {
 		return err
 	}
-	fmt.Fprintln(r.out, "initialized", storePath())
+	fmt.Fprintln(r.out, "initialized", r.storeLabel)
+	return nil
+}
+
+func (r *runner) version() error {
+	fmt.Fprintf(r.out, "spyber %s\n", version.Version)
 	return nil
 }
 
@@ -380,6 +394,7 @@ func usage(w io.Writer) {
 		"",
 		"commands:",
 		"  init",
+		"  version",
 		"  profiles",
 		"  find --country KE --sector commerce --segment wholesalers --limit 50",
 		"  find --country KE --query salon --limit 50",

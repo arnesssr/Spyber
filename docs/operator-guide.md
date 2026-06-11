@@ -4,6 +4,7 @@
 
 ```bash
 spyber init
+spyber version
 spyber profiles
 spyber find --country KE --sector commerce --segment wholesalers --limit 50
 spyber find --country KE --query salon --limit 50
@@ -26,6 +27,16 @@ SPYBER_ADMIN_TOKEN=change-me make run-ui
 ```
 
 The browser username is `admin`; the password is the token.
+
+## PostgreSQL
+
+Set `SPYBER_DATABASE_URL` to use PostgreSQL instead of the fallback JSON store:
+
+```bash
+export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
+spyber init
+make run-ui
+```
 
 The home screen `Find businesses` action queues a background job. Open `Jobs`
 to watch discovery, crawl, contact extraction, and verification progress.

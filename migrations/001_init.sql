@@ -1,4 +1,4 @@
-CREATE TABLE sources (
+CREATE TABLE IF NOT EXISTS sources (
   id TEXT PRIMARY KEY,
   country_code TEXT NOT NULL,
   source_type TEXT NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE sources (
   UNIQUE (country_code, url)
 );
 
-CREATE TABLE companies (
+CREATE TABLE IF NOT EXISTS companies (
   id TEXT PRIMARY KEY,
   country_code TEXT NOT NULL,
   name TEXT NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE companies (
   updated_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE crawl_jobs (
+CREATE TABLE IF NOT EXISTS crawl_jobs (
   id TEXT PRIMARY KEY,
   company_id TEXT NOT NULL REFERENCES companies(id),
   url TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE crawl_jobs (
   created_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE find_jobs (
+CREATE TABLE IF NOT EXISTS find_jobs (
   id TEXT PRIMARY KEY,
   country_code TEXT NOT NULL,
   sector TEXT NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE find_jobs (
   updated_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE fetch_tasks (
+CREATE TABLE IF NOT EXISTS fetch_tasks (
   id TEXT PRIMARY KEY,
   find_job_id TEXT NOT NULL REFERENCES find_jobs(id),
   company_id TEXT NOT NULL REFERENCES companies(id),
@@ -77,7 +77,7 @@ CREATE TABLE fetch_tasks (
   updated_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE contacts (
+CREATE TABLE IF NOT EXISTS contacts (
   id TEXT PRIMARY KEY,
   company_id TEXT NOT NULL REFERENCES companies(id),
   email TEXT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE contacts (
   UNIQUE (company_id, email)
 );
 
-CREATE TABLE evidence (
+CREATE TABLE IF NOT EXISTS evidence (
   id TEXT PRIMARY KEY,
   company_id TEXT NOT NULL REFERENCES companies(id),
   evidence_type TEXT NOT NULL,
@@ -99,14 +99,14 @@ CREATE TABLE evidence (
   created_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE suppression (
+CREATE TABLE IF NOT EXISTS suppression (
   id TEXT PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
   reason TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE exports (
+CREATE TABLE IF NOT EXISTS exports (
   id TEXT PRIMARY KEY,
   country_code TEXT NOT NULL,
   format TEXT NOT NULL,
@@ -115,7 +115,7 @@ CREATE TABLE exports (
   created_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE audit_events (
+CREATE TABLE IF NOT EXISTS audit_events (
   id TEXT PRIMARY KEY,
   actor TEXT NOT NULL,
   action TEXT NOT NULL,

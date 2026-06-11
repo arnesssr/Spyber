@@ -30,4 +30,4 @@ live-test-ke:
 	sh tests/live/ke-commerce-smoke.sh
 
 lines:
-	find . -type f -not -path './.git/*' -not -path './.spyber/*' -not -path './bin/*' -exec wc -l {} +
+	find . -type f -not -path './.git/*' -not -path './.spyber/*' -not -path './bin/*' -exec wc -l {} + | awk '$$2 != "total" && $$1 > 700 { print; failed = 1 } END { exit failed }'
