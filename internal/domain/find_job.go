@@ -36,7 +36,10 @@ func NewFindJob(countryCode, sector, segment, query string, limit int, now time.
 		return FindJob{}, err
 	}
 	if limit <= 0 {
-		limit = 5
+		limit = 50
+	}
+	if limit > 1000 {
+		limit = 1000
 	}
 	now = now.UTC()
 	return FindJob{

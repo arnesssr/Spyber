@@ -22,10 +22,32 @@ func TestCustomBusinessProfile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("custom profile: %v", err)
 	}
-	if profile.Key() != "custom/hair-salon" {
+	if profile.Key() != "services/salons" {
 		t.Fatalf("unexpected key: %s", profile.Key())
 	}
-	if len(profile.IncludeTerms) != 2 {
+	if len(profile.IncludeTerms) < 5 {
 		t.Fatalf("unexpected terms: %+v", profile.IncludeTerms)
 	}
+}
+
+func TestExpandIntentTermsUnderstandsCommerce(t *testing.T) {
+	profile, err := CustomBusinessProfile("shop")
+	if err != nil {
+		t.Fatalf("custom profile: %v", err)
+	}
+	if profile.Key() != "commerce/retailers" {
+		t.Fatalf("unexpected key: %s", profile.Key())
+	}
+	if !containsProfileTerm(profile.IncludeTerms, "checkout") {
+		t.Fatalf("expected commerce expansion, got %+v", profile.IncludeTerms)
+	}
+}
+
+func containsProfileTerm(terms []string, want string) bool {
+	for _, term := range terms {
+		if term == want {
+			return true
+		}
+	}
+	return false
 }

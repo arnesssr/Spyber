@@ -8,6 +8,7 @@ the core shape for development.
 - `sources`: allowed discovery inputs per country.
 - `companies`: normalized business candidates.
 - `find_jobs`: profile-driven discovery and crawl runs.
+- `fetch_tasks`: individual URL attempts with status and failure reason.
 - `crawl_jobs`: crawl attempts and failure reasons.
 - `contacts`: extracted emails with source evidence.
 - `evidence`: country, profile, and commerce classification evidence.
@@ -43,5 +44,6 @@ the core shape for development.
 - contact status and type
 - country code
 - find job country and status
+- fetch task job and status
 - source URL
 - suppression email

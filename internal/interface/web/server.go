@@ -3,10 +3,13 @@
 package web
 
 import (
+	"context"
 	"embed"
 	"net/http"
+	"time"
 
 	"github.com/waymore/spyber/internal/app"
+	"github.com/waymore/spyber/internal/domain"
 )
 
 //go:embed templates/*.html static/*.css
@@ -20,6 +23,7 @@ type Server struct {
 	app        *app.App
 	adminToken string
 	mux        *http.ServeMux
+	findQueue  chan domain.ID
 }
 
 func New(application *app.App, cfg Config) http.Handler {
@@ -27,8 +31,10 @@ func New(application *app.App, cfg Config) http.Handler {
 		app:        application,
 		adminToken: cfg.AdminToken,
 		mux:        http.NewServeMux(),
+		findQueue:  make(chan domain.ID, 100),
 	}
 	server.routes()
+	go server.findWorker()
 	return server.security(server.mux)
 }
 
@@ -52,4 +58,12 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /suppression", s.suppression)
 	s.mux.HandleFunc("POST /suppression/add", s.addSuppression)
 	s.mux.Handle("GET /static/", http.FileServerFS(assets))
+}
+
+func (s *Server) findWorker() {
+	for id := range s.findQueue {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		_ = s.app.RunFindJob(ctx, id)
+		cancel()
+	}
 }

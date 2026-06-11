@@ -58,6 +58,25 @@ CREATE TABLE find_jobs (
   updated_at TIMESTAMPTZ NOT NULL
 );
 
+CREATE TABLE fetch_tasks (
+  id TEXT PRIMARY KEY,
+  find_job_id TEXT NOT NULL REFERENCES find_jobs(id),
+  company_id TEXT NOT NULL REFERENCES companies(id),
+  url TEXT NOT NULL,
+  purpose TEXT NOT NULL,
+  status TEXT NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  status_code INTEGER NOT NULL DEFAULT 0,
+  bytes INTEGER NOT NULL DEFAULT 0,
+  email_count INTEGER NOT NULL DEFAULT 0,
+  link_count INTEGER NOT NULL DEFAULT 0,
+  failure_reason TEXT NOT NULL DEFAULT '',
+  started_at TIMESTAMPTZ,
+  finished_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+
 CREATE TABLE contacts (
   id TEXT PRIMARY KEY,
   company_id TEXT NOT NULL REFERENCES companies(id),

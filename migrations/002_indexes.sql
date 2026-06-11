@@ -5,4 +5,6 @@ CREATE INDEX idx_contacts_email ON contacts(email);
 CREATE INDEX idx_evidence_company_type ON evidence(company_id, evidence_type);
 CREATE INDEX idx_crawl_jobs_company_status ON crawl_jobs(company_id, status);
 CREATE INDEX idx_find_jobs_country_status ON find_jobs(country_code, status);
+CREATE INDEX idx_fetch_tasks_job_status ON fetch_tasks(find_job_id, status);
+CREATE INDEX idx_fetch_tasks_company ON fetch_tasks(company_id);
 CREATE INDEX idx_audit_events_target ON audit_events(target_type, target_id);

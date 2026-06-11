@@ -87,13 +87,16 @@ func CustomBusinessProfile(query string) (BusinessProfile, error) {
 	if query == "" {
 		return BusinessProfile{}, fmt.Errorf("query is required")
 	}
-	terms := splitProfileTerms(query)
+	terms := ExpandIntentTerms(query)
 	if len(terms) == 0 {
 		return BusinessProfile{}, fmt.Errorf("query must contain searchable words")
 	}
-	segment := strings.Join(terms, "-")
+	sector, segment := InferIntentProfile(query)
+	if segment == "" {
+		segment = strings.Join(splitProfileTerms(query), "-")
+	}
 	return BusinessProfile{
-		Sector:         "custom",
+		Sector:         sector,
 		Segment:        segment,
 		Label:          "Custom / " + query,
 		Description:    "Businesses matching the operator search terms.",
@@ -102,6 +105,52 @@ func CustomBusinessProfile(query string) (BusinessProfile, error) {
 		ExcludeTerms:   blockedBusinessTerms(),
 		MinScore:       25,
 	}, nil
+}
+
+func InferIntentProfile(query string) (string, string) {
+	terms := splitProfileTerms(query)
+	for _, term := range terms {
+		switch term {
+		case "shop", "store", "retail", "retailer", "boutique", "mall":
+			return "commerce", "retailers"
+		case "wholesale", "wholesaler", "supplier", "distributor", "bulk":
+			return "commerce", "wholesalers"
+		case "ecommerce", "checkout", "cart", "online":
+			return "commerce", "ecommerce"
+		case "salon", "hair", "hairdresser", "beauty", "barber", "spa":
+			return "services", "salons"
+		}
+	}
+	return "custom", strings.Join(terms, "-")
+}
+
+func ExpandIntentTerms(query string) []string {
+	terms := splitProfileTerms(query)
+	seen := map[string]bool{}
+	var out []string
+	add := func(values ...string) {
+		for _, value := range values {
+			if value == "" || seen[value] {
+				continue
+			}
+			seen[value] = true
+			out = append(out, value)
+		}
+	}
+	for _, term := range terms {
+		add(term)
+		switch term {
+		case "shop", "store", "retail", "retailer", "boutique":
+			add("store", "shop", "retail", "products", "cart", "checkout", "delivery")
+		case "wholesale", "wholesaler", "supplier", "distributor", "bulk":
+			add("wholesale", "wholesaler", "supplier", "distributor", "bulk", "trade account", "b2b")
+		case "ecommerce", "online", "checkout", "cart":
+			add("ecommerce", "online store", "checkout", "cart", "add to cart", "product")
+		case "salon", "hair", "hairdresser", "beauty", "barber", "spa":
+			add("salon", "hairdresser", "beauty", "barber", "spa", "booking", "stylist")
+		}
+	}
+	return out
 }
 
 func normalizeProfilePart(value string) string {

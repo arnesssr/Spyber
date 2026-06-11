@@ -27,6 +27,7 @@ It does not claim to find every business in a country.
 country + business intent + limit
 -> candidate discovery
 -> canonicalization and dedupe
+-> fetch task planning
 -> public website crawl
 -> evidence scoring
 -> contact extraction
@@ -39,8 +40,10 @@ country + business intent + limit
   country TLD indexes, and optional manual sources.
 - **Canonicalization:** normalize country codes, URLs, hosts, and emails.
 - **Deduplication:** avoid adding the same company host or contact email twice.
-- **Crawl planning:** fetch the candidate page and bounded contact/about/support
-  links.
+- **Intent expansion:** expand custom terms such as `shop` or `salon` into
+  related discovery and scoring terms.
+- **Fetch task planning:** fetch root, candidate, contact, about, and sitemap
+  URLs with persisted status.
 - **Profile scoring:** use include terms, exclude terms, discovery hints,
   storefront signals, and profile-specific thresholds.
 - **Contact extraction:** extract public emails, classify generic/named/unknown,
@@ -54,6 +57,7 @@ Every serious run should be judged by:
 - candidate businesses discovered
 - unique businesses after dedupe
 - crawl success rate
+- fetch failure reasons
 - businesses matched
 - businesses rejected
 - contacts found
@@ -77,7 +81,7 @@ Custom query profiles are allowed for exploratory searches.
 
 - Phone extraction is not implemented yet.
 - Business-name extraction is basic.
-- Search-job history is not modeled yet.
+- Browser automation fallback is not implemented yet.
 - Reviewed precision reports are not modeled yet.
 - Local JSON is a development store, not the production durability target.
 

@@ -12,11 +12,13 @@ import (
 )
 
 type FindRequest struct {
-	CountryCode string
-	Sector      string
-	Segment     string
-	Query       string
-	Limit       int
+	CountryCode  string
+	Sector       string
+	Segment      string
+	Query        string
+	Limit        int
+	JobID        domain.ID
+	FetchWorkers int
 }
 
 type FindSummary struct {
@@ -37,6 +39,9 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 	if a.countryFinder == nil {
 		return FindSummary{}, fmt.Errorf("country finder is not configured")
 	}
+	if a.fetcher == nil || a.analyzer == nil {
+		return FindSummary{}, fmt.Errorf("fetcher and analyzer are required")
+	}
 	country, err := domain.NormalizeCountry(req.CountryCode)
 	if err != nil {
 		return FindSummary{}, err
@@ -45,10 +50,7 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 	if err != nil {
 		return FindSummary{}, err
 	}
-	limit := req.Limit
-	if limit <= 0 {
-		limit = 50
-	}
+	limit := normalizeFindLimit(req.Limit)
 	existing, err := a.store.ListCompanies(ctx, country)
 	if err != nil {
 		return FindSummary{}, err
@@ -59,6 +61,7 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 		return FindSummary{}, err
 	}
 	summary := FindSummary{Profile: profile}
+	var plans []companyFetchPlan
 	processed := map[string]bool{}
 	for _, candidate := range candidates {
 		summary.Candidates++
@@ -88,27 +91,43 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 		}
 		match := scoreCandidateProfile(profile, candidate)
 		a.addProfileEvidence(ctx, company.ID, profile, candidate.SourceURL, match)
-		result := a.crawlCompanyForProfile(ctx, company, profile, match)
+		plan := a.planCompanyFetches(ctx, req.JobID, company, candidate, match)
+		if len(plan.tasks) == 0 {
+			summary.Failures++
+			continue
+		}
+		plans = append(plans, plan)
+	}
+	a.updateFindJobSummary(ctx, req.JobID, summary)
+	for result := range a.runCompanyFetchPlans(ctx, profile, plans, req.FetchWorkers) {
 		summary.Fetched += result.fetched
 		summary.Contacts += result.contacts
-		if result.failed {
-			summary.Failures++
-		}
+		summary.DirectEmails += result.directEmails
+		summary.Failures += result.failures
 		if result.matched {
 			summary.Matched++
-			if candidate.Email != "" && a.storeDirectEmail(ctx, company.ID, candidate) {
-				summary.DirectEmails++
-			}
 		} else {
 			summary.Rejected++
 		}
+		a.updateFindJobSummary(ctx, req.JobID, summary)
 	}
 	verified, err := a.VerifyContacts(ctx, country)
 	if err != nil {
 		return summary, err
 	}
 	summary.Verified = verified
+	a.updateFindJobSummary(ctx, req.JobID, summary)
 	return summary, nil
+}
+
+func normalizeFindLimit(limit int) int {
+	if limit <= 0 {
+		return 50
+	}
+	if limit > 1000 {
+		return 1000
+	}
+	return limit
 }
 
 func resolveFindProfile(req FindRequest) (domain.BusinessProfile, error) {

@@ -53,6 +53,7 @@ func (a *App) RunFindJob(ctx context.Context, id domain.ID) error {
 		Segment:     job.Segment,
 		Query:       job.Query,
 		Limit:       job.Limit,
+		JobID:       job.ID,
 	})
 	finished := a.now().UTC()
 	job.Status = domain.JobSucceeded

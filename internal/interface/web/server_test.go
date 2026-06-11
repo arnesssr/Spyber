@@ -72,10 +72,10 @@ func TestFindQueuesBackgroundJob(t *testing.T) {
 	if location := res.Header().Get("Location"); !strings.HasPrefix(location, "/jobs?") {
 		t.Fatalf("expected jobs redirect, got %s", location)
 	}
-	waitForJob(t, application)
+	waitForJob(t, application, store)
 }
 
-func waitForJob(t *testing.T, application *app.App) {
+func waitForJob(t *testing.T, application *app.App, store *localstore.Store) {
 	t.Helper()
 	deadline := time.Now().Add(2 * time.Second)
 	for time.Now().Before(deadline) {
@@ -86,6 +86,13 @@ func waitForJob(t *testing.T, application *app.App) {
 		if len(jobs) > 0 && jobs[0].Status == "succeeded" {
 			if jobs[0].Matched != 1 || jobs[0].Contacts != 1 {
 				t.Fatalf("unexpected job summary: %+v", jobs[0])
+			}
+			tasks, err := store.ListFetchTasks(context.Background(), jobs[0].ID)
+			if err != nil {
+				t.Fatalf("fetch tasks: %v", err)
+			}
+			if len(tasks) == 0 {
+				t.Fatal("expected persisted fetch tasks")
 			}
 			return
 		}

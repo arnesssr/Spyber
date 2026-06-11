@@ -3,12 +3,10 @@
 package web
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/waymore/spyber/internal/app"
 	"github.com/waymore/spyber/internal/domain"
@@ -73,7 +71,7 @@ func (s *Server) findBusinesses(w http.ResponseWriter, r *http.Request) {
 		Sector:      sector,
 		Segment:     segment,
 		Query:       r.FormValue("query"),
-		Limit:       formInt(r, "limit", 5),
+		Limit:       formInt(r, "limit", 50),
 	})
 	notice := "find job queued"
 	if err != nil {
@@ -81,16 +79,19 @@ func (s *Server) findBusinesses(w http.ResponseWriter, r *http.Request) {
 		redirectBack(w, r, "/", country, notice)
 		return
 	}
-	s.runFindJob(job.ID)
+	if !s.enqueueFindJob(job.ID) {
+		notice = "find queue is full"
+	}
 	redirectBack(w, r, "/jobs", country, notice)
 }
 
-func (s *Server) runFindJob(id domain.ID) {
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-		defer cancel()
-		_ = s.app.RunFindJob(ctx, id)
-	}()
+func (s *Server) enqueueFindJob(id domain.ID) bool {
+	select {
+	case s.findQueue <- id:
+		return true
+	default:
+		return false
+	}
 }
 
 func profileParts(value string) (string, string) {

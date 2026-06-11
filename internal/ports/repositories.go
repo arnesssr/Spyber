@@ -24,6 +24,8 @@ type Store interface {
 	UpsertFindJob(ctx context.Context, job domain.FindJob) error
 	GetFindJob(ctx context.Context, id domain.ID) (domain.FindJob, bool, error)
 	ListFindJobs(ctx context.Context, countryCode string) ([]domain.FindJob, error)
+	UpsertFetchTask(ctx context.Context, task domain.FetchTask) error
+	ListFetchTasks(ctx context.Context, findJobID domain.ID) ([]domain.FetchTask, error)
 	AddEvidence(ctx context.Context, evidence domain.Evidence) error
 	ListEvidence(ctx context.Context, companyID domain.ID) ([]domain.Evidence, error)
 	AddSuppression(ctx context.Context, suppression domain.Suppression) error

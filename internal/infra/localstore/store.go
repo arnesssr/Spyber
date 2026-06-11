@@ -24,6 +24,7 @@ type state struct {
 	Contacts     []domain.Contact      `json:"contacts"`
 	CrawlJobs    []domain.CrawlJob     `json:"crawl_jobs"`
 	FindJobs     []domain.FindJob      `json:"find_jobs"`
+	FetchTasks   []domain.FetchTask    `json:"fetch_tasks"`
 	Evidence     []domain.Evidence     `json:"evidence"`
 	Suppressions []domain.Suppression  `json:"suppressions"`
 	Exports      []domain.ExportRecord `json:"exports"`
@@ -253,6 +254,34 @@ func (s *Store) ListFindJobs(ctx context.Context, countryCode string) ([]domain.
 	for i := len(st.FindJobs) - 1; i >= 0; i-- {
 		if st.FindJobs[i].CountryCode == countryCode {
 			out = append(out, st.FindJobs[i])
+		}
+	}
+	return out, nil
+}
+
+func (s *Store) UpsertFetchTask(ctx context.Context, task domain.FetchTask) error {
+	return s.update(ctx, func(st *state) error {
+		for i, existing := range st.FetchTasks {
+			if existing.ID == task.ID {
+				task.CreatedAt = existing.CreatedAt
+				st.FetchTasks[i] = task
+				return nil
+			}
+		}
+		st.FetchTasks = append(st.FetchTasks, task)
+		return nil
+	})
+}
+
+func (s *Store) ListFetchTasks(ctx context.Context, findJobID domain.ID) ([]domain.FetchTask, error) {
+	st, err := s.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var out []domain.FetchTask
+	for _, item := range st.FetchTasks {
+		if item.FindJobID == findJobID {
+			out = append(out, item)
 		}
 	}
 	return out, nil

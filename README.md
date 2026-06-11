@@ -30,47 +30,6 @@ Current v1 capabilities:
 - auditable CSV export
 - Go-rendered operator UI
 
-## Engine Contract
-
-The user should not need to know a URL. The normal workflow is:
-
-```text
-country + business intent + limit
--> candidate discovery
--> dedupe
--> crawl
--> segment/ecommerce scoring
--> contact extraction
--> review/export
-```
-
-Manual URL entry is an advanced fallback, not the core product.
-
-Every exportable row must have:
-
-- business website
-- contact value
-- contact type
-- source URL
-- match status
-- suppression check
-
-## Current Algorithms
-
-- **Country discovery:** OpenStreetMap/Overpass shop tags and Common Crawl
-  country TLD indexes.
-- **Canonicalization:** normalized URLs, hosts, countries, and emails.
-- **Deduplication:** companies by normalized host; contacts by company and
-  email.
-- **Crawl planning:** company entry page plus bounded contact/about/support
-  links.
-- **Ecommerce scoring:** storefront keywords, platform markers, product/cart
-  paths, pricing and catalog signals.
-- **Contact extraction:** public email extraction, generic/named/unknown
-  classification, source URL retention.
-- **Export gating:** suppressed contacts and non-matching businesses are
-  excluded.
-
 ## Business Profiles
 
 Spyber ships with a small public profile catalog:
@@ -89,7 +48,7 @@ exploration, for example `--query salon`.
 ## Not Done Yet
 
 - Phone extraction is not implemented yet.
-- Search-job history is not modeled yet.
+- Browser automation is not implemented yet.
 - Reviewed precision reporting is not modeled yet.
 - Local JSON is a development store, not the production durability target.
 
@@ -193,6 +152,7 @@ make lines
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [Engine Architecture](docs/engine-architecture.md)
 - [Compliance](docs/compliance.md)
 - [Data Model](docs/data-model.md)
 - [Product Engine](docs/product-engine.md)
