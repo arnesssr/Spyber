@@ -111,17 +111,34 @@ func (a *App) fetchContactPage(ctx context.Context, companyID domain.ID, link st
 }
 
 func (a *App) storeContacts(ctx context.Context, companyID domain.ID, sourceURL string, emails []string) int {
+	seen := a.knownCompanyEmails(ctx, companyID)
 	count := 0
 	for _, email := range emails {
 		contact, err := domain.NewContact(companyID, email, sourceURL, a.now())
 		if err != nil {
 			continue
 		}
+		if seen[contact.Email] {
+			continue
+		}
 		if err := a.store.UpsertContact(ctx, contact); err == nil {
+			seen[contact.Email] = true
 			count++
 		}
 	}
 	return count
+}
+
+func (a *App) knownCompanyEmails(ctx context.Context, companyID domain.ID) map[string]bool {
+	seen := map[string]bool{}
+	contacts, err := a.store.ListCompanyContacts(ctx, companyID)
+	if err != nil {
+		return seen
+	}
+	for _, contact := range contacts {
+		seen[contact.Email] = true
+	}
+	return seen
 }
 
 func (a *App) finishJob(ctx context.Context, job domain.CrawlJob, status domain.JobStatus, reason string) {

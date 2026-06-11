@@ -71,7 +71,7 @@ func (s *Server) findBusinesses(w http.ResponseWriter, r *http.Request) {
 		Sector:      sector,
 		Segment:     segment,
 		Query:       r.FormValue("query"),
-		Limit:       formInt(r, "limit", 50),
+		Limit:       formInt(r, "limit", 5),
 	})
 	notice := fmt.Sprintf("matched %d businesses, found %d contacts", summary.Matched, summary.Contacts+summary.DirectEmails)
 	if err != nil {

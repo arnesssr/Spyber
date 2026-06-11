@@ -117,5 +117,8 @@ func (a *App) storeDirectEmail(ctx context.Context, companyID domain.ID, candida
 	if err != nil {
 		return false
 	}
+	if a.knownCompanyEmails(ctx, companyID)[contact.Email] {
+		return false
+	}
 	return a.store.UpsertContact(ctx, contact) == nil
 }

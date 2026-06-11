@@ -177,6 +177,9 @@ func TestFindBusinessesUsesProfileAndDedupesCompanies(t *testing.T) {
 	if summary.Created != 1 || summary.Duplicates != 1 || summary.Matched != 1 {
 		t.Fatalf("unexpected summary: %+v", summary)
 	}
+	if summary.Contacts != 1 || summary.DirectEmails != 1 {
+		t.Fatalf("expected unique page and direct contacts, got %+v", summary)
+	}
 	companies, err := app.ListCompanies(ctx, "KE")
 	if err != nil {
 		t.Fatalf("companies: %v", err)

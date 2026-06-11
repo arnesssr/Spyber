@@ -158,6 +158,20 @@ func (s *Store) ListContacts(ctx context.Context, countryCode string) ([]domain.
 	return out, nil
 }
 
+func (s *Store) ListCompanyContacts(ctx context.Context, companyID domain.ID) ([]domain.Contact, error) {
+	st, err := s.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var out []domain.Contact
+	for _, item := range st.Contacts {
+		if item.CompanyID == companyID {
+			out = append(out, item)
+		}
+	}
+	return out, nil
+}
+
 func (s *Store) GetContact(ctx context.Context, id domain.ID) (domain.Contact, bool, error) {
 	st, err := s.read(ctx)
 	if err != nil {
