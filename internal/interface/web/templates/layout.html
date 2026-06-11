@@ -1,0 +1,36 @@
+{{define "layout"}}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Title}} · Spyber</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/?country={{.Country}}">Spyber</a>
+    <form class="country" method="get" action="/">
+      <label for="country">Country</label>
+      <input id="country" name="country" value="{{.Country}}" maxlength="2">
+      <button type="submit">Switch</button>
+    </form>
+  </header>
+  <div class="shell">
+    <nav class="nav" aria-label="Primary">
+      <a {{if eq .Active "dashboard"}}class="active"{{end}} href="/?country={{.Country}}">Dashboard</a>
+      <a {{if eq .Active "sources"}}class="active"{{end}} href="/sources?country={{.Country}}">Sources</a>
+      <a {{if eq .Active "companies"}}class="active"{{end}} href="/companies?country={{.Country}}">Companies</a>
+      <a {{if eq .Active "contacts"}}class="active"{{end}} href="/contacts?country={{.Country}}">Contacts</a>
+      <a {{if eq .Active "exports"}}class="active"{{end}} href="/exports?country={{.Country}}">Exports</a>
+      <a {{if eq .Active "suppression"}}class="active"{{end}} href="/suppression?country={{.Country}}">Suppression</a>
+    </nav>
+    <main class="main">
+      {{if .Notice}}<p class="notice">{{.Notice}}</p>{{end}}
+      {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+      {{template "content" .}}
+    </main>
+  </div>
+</body>
+</html>
+{{end}}

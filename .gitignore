@@ -1,0 +1,6 @@
+.spyber/
+bin/
+coverage.out
+*.test
+*.tmp
+.DS_Store

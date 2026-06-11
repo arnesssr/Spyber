@@ -1,0 +1,40 @@
+{{define "content"}}
+<section class="page-head">
+  <div>
+    <h1>Contacts</h1>
+    <p>Approve generic business emails before export.</p>
+  </div>
+  <form method="post" action="/contacts/verify">
+    <input type="hidden" name="country" value="{{.Country}}">
+    <button type="submit">Verify contacts</button>
+  </form>
+</section>
+
+<table>
+  <thead><tr><th>Email</th><th>Type</th><th>Status</th><th>Source</th><th>Action</th></tr></thead>
+  <tbody>
+  {{range .Contacts}}
+    <tr>
+      <td>{{.Email}}<br><small>{{.CompanyID}}</small></td>
+      <td>{{.Type}}</td>
+      <td><span class="badge">{{.Status}}</span></td>
+      <td><a href="{{.SourceURL}}">source</a></td>
+      <td class="actions">
+        <form method="post" action="/contacts/approve">
+          <input type="hidden" name="country" value="{{$.Country}}">
+          <input type="hidden" name="contact_id" value="{{.ID}}">
+          <button type="submit">Approve</button>
+        </form>
+        <form method="post" action="/contacts/reject">
+          <input type="hidden" name="country" value="{{$.Country}}">
+          <input type="hidden" name="contact_id" value="{{.ID}}">
+          <button class="secondary" type="submit">Reject</button>
+        </form>
+      </td>
+    </tr>
+  {{else}}
+    <tr><td colspan="5" class="empty">No contacts yet. Crawl companies first.</td></tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}

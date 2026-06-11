@@ -1,0 +1,38 @@
+{{define "content"}}
+<section class="page-head">
+  <div>
+    <h1>Sources</h1>
+    <p>Add seed sites or directories, then discover candidate companies.</p>
+  </div>
+  <form method="post" action="/discover/sources">
+    <input type="hidden" name="country" value="{{.Country}}">
+    <button type="submit">Discover from sources</button>
+  </form>
+</section>
+
+<form class="toolbar" method="post" action="/sources/add">
+  <input type="hidden" name="country" value="{{.Country}}">
+  <label>Type
+    <select name="type">
+      <option value="seed">Seed</option>
+      <option value="directory">Directory</option>
+      <option value="marketplace">Marketplace</option>
+    </select>
+  </label>
+  <label>URL
+    <input name="url" type="url" placeholder="https://example.com" required>
+  </label>
+  <button type="submit">Add source</button>
+</form>
+
+<table>
+  <thead><tr><th>ID</th><th>Country</th><th>Type</th><th>Status</th><th>URL</th></tr></thead>
+  <tbody>
+  {{range .Sources}}
+    <tr><td>{{.ID}}</td><td>{{.CountryCode}}</td><td>{{.Type}}</td><td>{{.Status}}</td><td><a href="{{.URL}}">{{.URL}}</a></td></tr>
+  {{else}}
+    <tr><td colspan="5" class="empty">No sources yet.</td></tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}

@@ -1,0 +1,5 @@
+country: GB
+default_export_policy: generic_only
+notes:
+  - "Review PECR and UK GDPR obligations before outreach."
+  - "Treat sole traders and partnerships carefully."

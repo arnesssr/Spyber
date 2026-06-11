@@ -1,0 +1,33 @@
+{{define "content"}}
+<section class="page-head">
+  <div>
+    <h1>Companies</h1>
+    <p>Candidate ecommerce businesses discovered for {{.Country}}.</p>
+  </div>
+</section>
+
+<form class="toolbar" method="post" action="/discover/domain">
+  <input type="hidden" name="country" value="{{.Country}}">
+  <label>Domain
+    <input name="domain" placeholder="https://shop.example" required>
+  </label>
+  <button type="submit">Add company</button>
+</form>
+
+<table>
+  <thead><tr><th>Company</th><th>Status</th><th>Score</th><th>Country confidence</th><th>Website</th></tr></thead>
+  <tbody>
+  {{range .Companies}}
+    <tr>
+      <td>{{.Name}}<br><small>{{.ID}}</small></td>
+      <td><span class="badge">{{.Status}}</span></td>
+      <td>{{.EcommerceScore}}</td>
+      <td>{{.CountryConfidence}}</td>
+      <td><a href="{{.WebsiteURL}}">{{.NormalizedHost}}</a></td>
+    </tr>
+  {{else}}
+    <tr><td colspan="5" class="empty">No companies yet. Add a domain or discover from sources.</td></tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}

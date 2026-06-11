@@ -1,0 +1,22 @@
+{{define "content"}}
+<section class="page-head">
+  <div>
+    <h1>Exports</h1>
+    <p>Exports exclude suppressed contacts and default to generic role emails.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Create CSV</h2>
+  <form class="toolbar" method="post" action="/exports/download">
+    <input type="hidden" name="country" value="{{.Country}}">
+    <label>Scope
+      <select name="only">
+        <option value="generic">Generic only</option>
+        <option value="all">All eligible</option>
+      </select>
+    </label>
+    <button type="submit">Download CSV</button>
+  </form>
+</section>
+{{end}}

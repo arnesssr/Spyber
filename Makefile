@@ -1,0 +1,30 @@
+.PHONY: test fmt vet build check-build run-ui smoke lines
+
+test:
+	go test ./...
+
+fmt:
+	gofmt -w $$(find . -name '*.go' -not -path './.git/*')
+
+vet:
+	go vet ./...
+
+build:
+	go build -o bin/spyber ./cmd/spyber
+	go build -o bin/spyberd ./cmd/spyberd
+
+check-build:
+	go build -o /tmp/spyber-check ./cmd/spyber
+	go build -o /tmp/spyberd-check ./cmd/spyberd
+
+run-ui:
+	go run ./cmd/spyberd --addr 127.0.0.1:8080
+
+smoke:
+	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber init
+	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber source add --country GB --type seed --url https://example.com
+	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber discover --country GB --domain https://shop.example
+	SPYBER_STORE=/tmp/spyber-smoke.json go run ./cmd/spyber companies list --country GB
+
+lines:
+	find . -type f -not -path './.git/*' -not -path './.spyber/*' -not -path './bin/*' -exec wc -l {} +

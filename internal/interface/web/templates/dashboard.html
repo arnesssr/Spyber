@@ -1,0 +1,45 @@
+{{define "content"}}
+<section class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Country {{.Country}} · review data before export.</p>
+  </div>
+  <form method="post" action="/crawl">
+    <input type="hidden" name="country" value="{{.Country}}">
+    <button type="submit">Crawl country</button>
+  </form>
+</section>
+
+<section class="metrics" aria-label="Status">
+  <div><strong>{{.Stats.Sources}}</strong><span>Sources</span></div>
+  <div><strong>{{.Stats.Companies}}</strong><span>Companies</span></div>
+  <div><strong>{{.Stats.ReviewCompanies}}</strong><span>Ready to review</span></div>
+  <div><strong>{{.Stats.Contacts}}</strong><span>Contacts</span></div>
+  <div><strong>{{.Stats.ExportableGeneric}}</strong><span>Generic exportable</span></div>
+  <div><strong>{{.Stats.FailedCrawlJobs}}</strong><span>Crawl failures</span></div>
+</section>
+
+<section class="split">
+  <div class="panel">
+    <h2>Next actions</h2>
+    <form method="post" action="/discover/sources">
+      <input type="hidden" name="country" value="{{.Country}}">
+      <button type="submit">Discover from sources</button>
+    </form>
+    <form method="post" action="/contacts/verify">
+      <input type="hidden" name="country" value="{{.Country}}">
+      <button type="submit">Verify contacts</button>
+    </form>
+  </div>
+  <div class="panel">
+    <h2>Contact mix</h2>
+    <dl class="compact">
+      <dt>Generic</dt><dd>{{.Stats.GenericContacts}}</dd>
+      <dt>Named</dt><dd>{{.Stats.NamedContacts}}</dd>
+      <dt>Needs review</dt><dd>{{.Stats.NeedsReview}}</dd>
+      <dt>Approved</dt><dd>{{.Stats.Approved}}</dd>
+      <dt>Suppressed</dt><dd>{{.Stats.Suppressed}}</dd>
+    </dl>
+  </div>
+</section>
+{{end}}

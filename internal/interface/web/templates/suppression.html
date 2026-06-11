@@ -1,0 +1,30 @@
+{{define "content"}}
+<section class="page-head">
+  <div>
+    <h1>Suppression</h1>
+    <p>Suppressed emails never export.</p>
+  </div>
+</section>
+
+<form class="toolbar" method="post" action="/suppression/add">
+  <input type="hidden" name="country" value="{{.Country}}">
+  <label>Email
+    <input name="email" type="email" placeholder="user@example.com" required>
+  </label>
+  <label>Reason
+    <input name="reason" value="opt_out" required>
+  </label>
+  <button type="submit">Suppress</button>
+</form>
+
+<table>
+  <thead><tr><th>Email</th><th>Reason</th><th>Created</th></tr></thead>
+  <tbody>
+  {{range .Suppressions}}
+    <tr><td>{{.Email}}</td><td>{{.Reason}}</td><td>{{.CreatedAt}}</td></tr>
+  {{else}}
+    <tr><td colspan="3" class="empty">No suppressed emails.</td></tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}
