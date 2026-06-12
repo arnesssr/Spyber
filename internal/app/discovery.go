@@ -149,6 +149,8 @@ func candidateAllowed(raw string) bool {
 		"facebook.", "instagram.", "linkedin.", "tiktok.", "twitter.",
 		"x.com", "youtube.", "google.", "schema.org", "w3.org",
 		"cloudflare.", "shopify.com", "wordpress.org",
+		"aeroleads.", "africabizinfo.", "primebizlist.", "businesslist.",
+		"yellowpages.", "tripadvisor.", "foursquare.", "yelp.", "cybo.",
 		"1-win", "1win", "bet", "casino", "gambl",
 		"sexy", "porn", "adult",
 	}

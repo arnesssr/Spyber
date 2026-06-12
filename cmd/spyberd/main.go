@@ -16,6 +16,7 @@ import (
 	"github.com/waymore/spyber/internal/infra/httpfetch"
 	"github.com/waymore/spyber/internal/infra/overpass"
 	"github.com/waymore/spyber/internal/infra/storeconfig"
+	"github.com/waymore/spyber/internal/infra/websearch"
 	"github.com/waymore/spyber/internal/interface/web"
 	"github.com/waymore/spyber/internal/version"
 )
@@ -33,6 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 	finder := countryfinders.New(
+		websearch.New(os.Getenv("SPYBER_WEBSEARCH_ENDPOINT")),
 		overpass.New(os.Getenv("SPYBER_OVERPASS_ENDPOINT")),
 		commoncrawl.New(os.Getenv("SPYBER_COMMONCRAWL_INDEX")),
 	)

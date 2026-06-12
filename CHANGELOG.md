@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1
+
+- Add a web-search discovery provider for autonomous business candidate search.
+- Report provider failures instead of silently returning empty results.
+- Fail profile and country discovery when no candidates are found.
+- Broaden Common Crawl profile queries beyond the first search term.
+- Make the Kenya live smoke test fail on zero discovered businesses or contacts.
+
 ## 0.2.0
 
 - Add PostgreSQL as the reliable store when `SPYBER_DATABASE_URL` is set.

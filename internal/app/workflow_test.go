@@ -4,6 +4,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 
@@ -56,6 +57,16 @@ func (profileAnalyzer) Analyze(baseURL string, body []byte) ports.PageAnalysis {
 type profileCountryFinder struct{}
 
 func (profileCountryFinder) FindBusinesses(ctx context.Context, countryCode string, limit int) ([]ports.BusinessCandidate, error) {
+	return nil, nil
+}
+
+type emptySearchFinder struct{}
+
+func (emptySearchFinder) FindBusinesses(ctx context.Context, countryCode string, limit int) ([]ports.BusinessCandidate, error) {
+	return nil, nil
+}
+
+func (emptySearchFinder) SearchBusinesses(ctx context.Context, search ports.BusinessSearch) ([]ports.BusinessCandidate, error) {
 	return nil, nil
 }
 
@@ -193,5 +204,23 @@ func TestFindBusinessesUsesProfileAndDedupesCompanies(t *testing.T) {
 	}
 	if len(contacts) != 2 {
 		t.Fatalf("expected page and direct contacts, got %+v", contacts)
+	}
+}
+
+func TestFindBusinessesFailsWhenNoCandidates(t *testing.T) {
+	ctx := context.Background()
+	store := localstore.New(t.TempDir() + "/spyber.json")
+	app := New(store, fakeFetcher{}, profileAnalyzer{}).WithCountryFinder(emptySearchFinder{})
+	if err := app.Init(ctx); err != nil {
+		t.Fatalf("init: %v", err)
+	}
+	_, err := app.FindBusinesses(ctx, FindRequest{
+		CountryCode: "KE",
+		Sector:      "services",
+		Segment:     "salons",
+		Limit:       10,
+	})
+	if !errors.Is(err, ErrNoCandidates) {
+		t.Fatalf("expected ErrNoCandidates, got %v", err)
 	}
 }

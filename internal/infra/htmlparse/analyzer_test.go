@@ -13,6 +13,7 @@ func TestAnalyzeExtractsSignalsEmailsAndContactLinks(t *testing.T) {
 			<body>
 				<a href="/contact">Contact</a>
 				<a href="mailto:sales@example.com">Email</a>
+				<img src="/phone-icon@2x.png">
 				<button>Add to cart</button>
 				<a href="/cart">Cart</a>
 				<p>Wholesale: wholesale@example.com</p>

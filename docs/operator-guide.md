@@ -42,6 +42,12 @@ The home screen `Find businesses` action queues a background job. Open `Jobs`
 to watch discovery, crawl, contact extraction, and verification progress.
 Manual sources and broad ecommerce scraping are secondary paths.
 
+## Search Provider
+
+Spyber uses DuckDuckGo Lite by default for no-key candidate discovery. Operators
+can point `SPYBER_WEBSEARCH_ENDPOINT` at a compatible internal or SearxNG-style
+HTML search endpoint.
+
 ## Crawl
 
 ```bash

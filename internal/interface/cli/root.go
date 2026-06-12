@@ -19,6 +19,7 @@ import (
 	"github.com/waymore/spyber/internal/infra/httpfetch"
 	"github.com/waymore/spyber/internal/infra/overpass"
 	"github.com/waymore/spyber/internal/infra/storeconfig"
+	"github.com/waymore/spyber/internal/infra/websearch"
 	"github.com/waymore/spyber/internal/version"
 )
 
@@ -73,8 +74,13 @@ func commonCrawlIndex() string {
 	return os.Getenv("SPYBER_COMMONCRAWL_INDEX")
 }
 
+func webSearchEndpoint() string {
+	return os.Getenv("SPYBER_WEBSEARCH_ENDPOINT")
+}
+
 func countryFinder() *countryfinders.Multi {
 	return countryfinders.New(
+		websearch.New(webSearchEndpoint()),
 		overpass.New(overpassEndpoint()),
 		commoncrawl.New(commonCrawlIndex()),
 	)

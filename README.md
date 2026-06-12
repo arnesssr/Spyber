@@ -5,7 +5,7 @@ intent, it discovers candidate businesses, crawls public websites, classifies
 evidence, extracts public contact channels, and exports reviewable business
 contacts with source evidence.
 
-Current version: `0.2.0`
+Current version: `0.2.1`
 
 ## Scope
 
@@ -22,6 +22,7 @@ Current v1 capabilities:
 
 - country-scoped discovery
 - profile-driven business search
+- web-search candidate discovery
 - source-page candidate discovery
 - autonomous country discovery through public indexes
 - public website crawling with per-host delay and safe fetch limits
@@ -115,6 +116,9 @@ SPYBER_ADMIN_TOKEN=change-me make run-ui
 The UI is server-rendered Go HTML. It has no TypeScript or frontend build
 pipeline.
 
+Set `SPYBER_WEBSEARCH_ENDPOINT` to use a compatible search endpoint. By
+default Spyber uses DuckDuckGo Lite for no-key candidate discovery.
+
 Use the country field and `Find businesses` form to choose a business type,
 set a limit, and queue a background find job. Open `Jobs` to watch the run
 complete while the crawler discovers websites and extracts contacts. `Broad
@@ -141,7 +145,7 @@ deduped, source-backed, and tied to matched businesses.
 
 - only `http` and `https` URLs are accepted
 - private, loopback, and link-local hosts are blocked by the fetcher by default
-- country discovery uses public OpenStreetMap/Overpass shop tags and Common Crawl country TLD indexes
+- country discovery uses web search, public OpenStreetMap/Overpass tags, and Common Crawl country TLD indexes
 - every contact must keep its source URL
 - exports exclude suppressed contacts
 - source and export actions are audit logged

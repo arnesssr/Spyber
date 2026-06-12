@@ -32,3 +32,13 @@ func TestParseLinesForTermsFiltersBySearchTerms(t *testing.T) {
 		t.Fatalf("unexpected first website: %s", candidates[0].Website)
 	}
 }
+
+func TestCommonCrawlQueriesUseMultipleTerms(t *testing.T) {
+	queries := commonCrawlQueries("co.ke", []string{"salon", "hairdresser", "beauty"})
+	joined := strings.Join(queries, "\n")
+	for _, expected := range []string{"*salon*", "*hairdresser*", "*beauty*", "*contact*"} {
+		if !strings.Contains(joined, expected) {
+			t.Fatalf("expected %s in queries: %+v", expected, queries)
+		}
+	}
+}

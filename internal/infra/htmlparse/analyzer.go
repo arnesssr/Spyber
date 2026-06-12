@@ -43,13 +43,28 @@ func extractEmails(text string) []string {
 	var out []string
 	for _, match := range matches {
 		email := strings.ToLower(strings.Trim(match, ".,;:()[]{}<>\"'"))
-		if seen[email] {
+		if seen[email] || looksLikeAssetEmail(email) {
 			continue
 		}
 		seen[email] = true
 		out = append(out, email)
 	}
 	return out
+}
+
+func looksLikeAssetEmail(email string) bool {
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return true
+	}
+	domain := parts[1]
+	blockedSuffixes := []string{".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico", ".css", ".js"}
+	for _, suffix := range blockedSuffixes {
+		if strings.HasSuffix(domain, suffix) {
+			return true
+		}
+	}
+	return false
 }
 
 func extractContactLinks(baseURL, text string) []string {

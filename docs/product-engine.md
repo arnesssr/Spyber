@@ -36,8 +36,8 @@ country + business intent + limit
 
 ## Current Algorithms
 
-- **Candidate discovery:** OpenStreetMap/Overpass shop tags, Common Crawl
-  country TLD indexes, and optional manual sources.
+- **Candidate discovery:** web search, OpenStreetMap/Overpass shop tags,
+  Common Crawl country TLD indexes, and optional manual sources.
 - **Canonicalization:** normalize country codes, URLs, hosts, and emails.
 - **Deduplication:** avoid adding the same company host or contact email twice.
 - **Intent expansion:** expand custom terms such as `shop` or `salon` into
@@ -82,6 +82,7 @@ Custom query profiles are allowed for exploratory searches.
 - Phone extraction is not implemented yet.
 - Business-name extraction is basic.
 - Browser automation fallback is not implemented yet.
+- Search quality still depends on public result availability and blocking behavior.
 - Reviewed precision reports are not modeled yet.
 - Local JSON is a development store, not the production durability target.
 

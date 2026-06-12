@@ -26,7 +26,8 @@ larger handler or crawler file.
 - Keep PostgreSQL repositories behind `internal/ports`; keep JSON as a local fallback only.
 - Add durable fetch queues before increasing crawl volume further.
 - Add durable job state before distributed workers.
-- Keep provider integrations behind `CountryFinder` and `BusinessSearcher`.
+- Keep web search, Overpass, and Common Crawl integrations behind `CountryFinder`
+  and `BusinessSearcher`.
 - Keep scoring/profile rules in app/domain code, not templates.
 - Add metrics around discovery, dedupe, crawl success, match rate, and export.
 - Keep live-network checks outside `make test`.

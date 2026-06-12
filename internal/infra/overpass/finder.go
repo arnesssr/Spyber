@@ -19,6 +19,7 @@ import (
 )
 
 const defaultEndpoint = "https://overpass-api.de/api/interpreter"
+const userAgent = "Spyber/0.2.1 (+https://github.com/arnesssr/Spyber)"
 
 type Finder struct {
 	Endpoint string
@@ -56,8 +57,9 @@ func (f *Finder) find(ctx context.Context, countryCode string, terms []string, l
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("User-Agent", "Spyber/0.1")
+	req.Header.Set("User-Agent", userAgent)
 	client := f.Client
 	if client == nil {
 		client = &http.Client{Timeout: 45 * time.Second}

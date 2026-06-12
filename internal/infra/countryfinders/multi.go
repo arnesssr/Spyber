@@ -4,7 +4,10 @@ package countryfinders
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
+	"github.com/waymore/spyber/internal/domain"
 	"github.com/waymore/spyber/internal/ports"
 )
 
@@ -27,9 +30,13 @@ func (m *Multi) SearchBusinesses(ctx context.Context, search ports.BusinessSearc
 func (m *Multi) search(ctx context.Context, search ports.BusinessSearch, preferSearch bool) ([]ports.BusinessCandidate, error) {
 	seen := map[string]bool{}
 	var out []ports.BusinessCandidate
+	var providerErrors []string
 	for _, finder := range m.Finders {
 		if finder == nil {
 			continue
+		}
+		if search.Limit > 0 && len(out) >= search.Limit {
+			return out, nil
 		}
 		remaining := search.Limit - len(out)
 		if search.Limit <= 0 {
@@ -37,18 +44,23 @@ func (m *Multi) search(ctx context.Context, search ports.BusinessSearch, preferS
 		}
 		candidates, err := findWithProvider(ctx, finder, search, remaining, preferSearch)
 		if err != nil {
+			providerErrors = append(providerErrors, fmt.Sprintf("%T: %v", finder, err))
 			continue
 		}
 		for _, candidate := range candidates {
-			if candidate.Website == "" || seen[candidate.Website] {
+			host := candidateHost(candidate.Website)
+			if host == "" || seen[host] {
 				continue
 			}
-			seen[candidate.Website] = true
+			seen[host] = true
 			out = append(out, candidate)
 			if search.Limit > 0 && len(out) >= search.Limit {
 				return out, nil
 			}
 		}
+	}
+	if len(out) == 0 && len(providerErrors) > 0 {
+		return nil, fmt.Errorf("candidate providers failed: %s", strings.Join(providerErrors, "; "))
 	}
 	return out, nil
 }
@@ -61,4 +73,12 @@ func findWithProvider(ctx context.Context, finder ports.CountryFinder, search po
 		}
 	}
 	return finder.FindBusinesses(ctx, search.CountryCode, limit)
+}
+
+func candidateHost(raw string) string {
+	_, host, err := domain.NormalizeWebsite(raw)
+	if err != nil {
+		return ""
+	}
+	return host
 }

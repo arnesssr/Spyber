@@ -18,6 +18,7 @@ import (
 )
 
 const collectionsURL = "https://index.commoncrawl.org/collinfo.json"
+const userAgent = "Spyber/0.2.1 (+https://github.com/arnesssr/Spyber)"
 
 type Finder struct {
 	IndexAPI string
@@ -65,10 +66,11 @@ func (f *Finder) find(ctx context.Context, countryCode string, terms []string, l
 			continue
 		}
 		for _, candidate := range candidates {
-			if seen[candidate.Website] {
+			host := candidateHost(candidate.Website)
+			if host == "" || seen[host] {
 				continue
 			}
-			seen[candidate.Website] = true
+			seen[host] = true
 			out = append(out, candidate)
 			if len(out) >= limit {
 				break
@@ -83,6 +85,7 @@ func (f *Finder) latestIndex(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	req.Header.Set("User-Agent", userAgent)
 	resp, err := f.client().Do(req)
 	if err != nil {
 		return "", err
@@ -101,10 +104,32 @@ func (f *Finder) latestIndex(ctx context.Context) (string, error) {
 }
 
 func (f *Finder) query(ctx context.Context, indexAPI, domain string, terms []string, limit int) ([]ports.BusinessCandidate, error) {
-	rawURL := domain
-	if len(cleanTerms(terms)) > 0 {
-		rawURL = "*." + domain + "/*" + cleanTerms(terms)[0] + "*"
+	seen := map[string]bool{}
+	var out []ports.BusinessCandidate
+	for _, rawURL := range commonCrawlQueries(domain, terms) {
+		if len(out) >= limit {
+			break
+		}
+		candidates, err := f.queryURL(ctx, indexAPI, rawURL, terms, limit-len(out))
+		if err != nil {
+			return out, err
+		}
+		for _, candidate := range candidates {
+			host := candidateHost(candidate.Website)
+			if host == "" || seen[host] {
+				continue
+			}
+			seen[host] = true
+			out = append(out, candidate)
+			if len(out) >= limit {
+				break
+			}
+		}
 	}
+	return out, nil
+}
+
+func (f *Finder) queryURL(ctx context.Context, indexAPI, rawURL string, terms []string, limit int) ([]ports.BusinessCandidate, error) {
 	values := url.Values{
 		"url":    []string{rawURL},
 		"output": []string{"json"},
@@ -118,7 +143,7 @@ func (f *Finder) query(ctx context.Context, indexAPI, domain string, terms []str
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "Spyber/0.1")
+	req.Header.Set("User-Agent", userAgent)
 	resp, err := f.client().Do(req)
 	if err != nil {
 		return nil, err
@@ -128,6 +153,33 @@ func (f *Finder) query(ctx context.Context, indexAPI, domain string, terms []str
 		return nil, fmt.Errorf("common crawl returned status %d", resp.StatusCode)
 	}
 	return parseLinesForTerms(resp.Body, limit, terms), nil
+}
+
+func commonCrawlQueries(domain string, terms []string) []string {
+	cleaned := cleanTerms(terms)
+	seen := map[string]bool{}
+	var out []string
+	add := func(raw string) {
+		if raw == "" || seen[raw] {
+			return
+		}
+		seen[raw] = true
+		out = append(out, raw)
+	}
+	if len(cleaned) == 0 {
+		add(domain)
+		return out
+	}
+	for _, term := range cleaned {
+		add("*." + domain + "/*" + term + "*")
+		if len(out) >= 8 {
+			break
+		}
+	}
+	add("*." + domain + "/*shop*")
+	add("*." + domain + "/*store*")
+	add("*." + domain + "/*contact*")
+	return out
 }
 
 func (f *Finder) client() *http.Client {

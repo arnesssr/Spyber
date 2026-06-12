@@ -4,12 +4,15 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/waymore/spyber/internal/domain"
 	"github.com/waymore/spyber/internal/ports"
 )
+
+var ErrNoCandidates = errors.New("no candidates discovered")
 
 type FindRequest struct {
 	CountryCode  string
@@ -56,11 +59,14 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 		return FindSummary{}, err
 	}
 	seen := knownHosts(existing)
+	summary := FindSummary{Profile: profile}
 	candidates, err := a.searchCandidates(ctx, country, profile, limit)
 	if err != nil {
-		return FindSummary{}, err
+		return summary, err
 	}
-	summary := FindSummary{Profile: profile}
+	if len(candidates) == 0 {
+		return summary, fmt.Errorf("%w for %s in %s", ErrNoCandidates, profile.Key(), country)
+	}
 	var plans []companyFetchPlan
 	processed := map[string]bool{}
 	for _, candidate := range candidates {

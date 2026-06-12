@@ -11,7 +11,7 @@ The user should not need to know a URL. The normal flow is:
 ```text
 country + business intent + limit
 -> intent expansion
--> candidate discovery
+-> web/search-index candidate discovery
 -> company dedupe
 -> fetch task planning
 -> controlled parallel fetching
@@ -43,6 +43,17 @@ Each matched candidate becomes a company fetch plan. The first task set is:
 
 The engine may add discovered contact links while processing a company, capped
 per company so a single site cannot explode the crawl.
+
+## Discovery Providers
+
+The default provider order is:
+
+- web search through DuckDuckGo Lite or `SPYBER_WEBSEARCH_ENDPOINT`
+- OpenStreetMap/Overpass
+- Common Crawl country TLD indexes
+
+Provider errors must be visible. A zero-candidate run is treated as a failed
+run instead of a successful empty run.
 
 ## Throughput Model
 
@@ -109,4 +120,4 @@ Rejected businesses and suppressed contacts must not contribute export rows.
 - Local JSON storage is for development, not high-volume production.
 - Browser automation is not part of the default fetch path yet.
 - Phone and WhatsApp extraction are not implemented yet.
-- Search provider coverage is still limited.
+- Search provider quality still depends on public result availability and blocking behavior.

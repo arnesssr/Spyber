@@ -38,6 +38,9 @@ func (a *App) DiscoverCountry(ctx context.Context, countryCode string, limit int
 		return CountryScrapeSummary{}, err
 	}
 	var summary CountryScrapeSummary
+	if len(candidates) == 0 {
+		return summary, fmt.Errorf("%w in %s", ErrNoCandidates, country)
+	}
 	for _, candidate := range candidates {
 		created, company, err := a.storeBusinessCandidate(ctx, country, candidate, seen)
 		if err != nil {

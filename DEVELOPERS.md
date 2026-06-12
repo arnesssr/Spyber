@@ -48,6 +48,8 @@ The engine must be measurable. A search or scrape run should eventually report:
 
 Exportable contacts must be tied to matched businesses and source evidence.
 Rejected businesses and suppressed contacts must not export.
+Provider failures and zero-candidate discovery runs must be visible failures,
+not successful empty runs.
 
 ## Testing Rules
 
