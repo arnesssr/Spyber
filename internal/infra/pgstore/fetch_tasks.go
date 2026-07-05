@@ -6,7 +6,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (s *Store) UpsertFetchTask(ctx context.Context, task domain.FetchTask) error {

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/waymore/spyber/internal/infra/localstore"
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/infra/localstore"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 type fakeFetcher struct{}

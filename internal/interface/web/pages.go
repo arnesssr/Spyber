@@ -5,7 +5,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {

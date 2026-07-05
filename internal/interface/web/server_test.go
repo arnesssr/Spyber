@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/waymore/spyber/internal/app"
-	"github.com/waymore/spyber/internal/infra/htmlparse"
-	"github.com/waymore/spyber/internal/infra/httpfetch"
-	"github.com/waymore/spyber/internal/infra/localstore"
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/app"
+	"github.com/arnesssr/Spyber/internal/infra/htmlparse"
+	"github.com/arnesssr/Spyber/internal/infra/httpfetch"
+	"github.com/arnesssr/Spyber/internal/infra/localstore"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 func TestDashboardRenders(t *testing.T) {
@@ -31,11 +31,11 @@ func TestDashboardRenders(t *testing.T) {
 	if res.Code != http.StatusOK {
 		t.Fatalf("expected status 200, got %d", res.Code)
 	}
-	if !strings.Contains(res.Body.String(), "Find businesses") {
+	if !strings.Contains(res.Body.String(), "Search contacts") {
 		t.Fatalf("expected find body, got %s", res.Body.String())
 	}
-	if !strings.Contains(res.Body.String(), "Commerce / Wholesalers") {
-		t.Fatalf("expected profile selector, got %s", res.Body.String())
+	if !strings.Contains(res.Body.String(), "Crawl mode") {
+		t.Fatalf("expected crawl mode selector, got %s", res.Body.String())
 	}
 }
 
@@ -61,7 +61,12 @@ func TestFindQueuesBackgroundJob(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 	server := New(application, Config{})
-	form := url.Values{"country": {"KE"}, "profile": {"commerce/ecommerce"}, "limit": {"1"}}
+	form := url.Values{
+		"country":    {"KE"},
+		"query":      {"shop"},
+		"limit":      {"1"},
+		"crawl_mode": {"exhaustive"},
+	}
 	req := httptest.NewRequest(http.MethodPost, "/find", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	res := httptest.NewRecorder()
@@ -86,6 +91,9 @@ func waitForJob(t *testing.T, application *app.App, store *localstore.Store) {
 		if len(jobs) > 0 && jobs[0].Status == "succeeded" {
 			if jobs[0].Matched != 1 || jobs[0].Contacts != 1 {
 				t.Fatalf("unexpected job summary: %+v", jobs[0])
+			}
+			if jobs[0].CrawlMode != "exhaustive" {
+				t.Fatalf("expected exhaustive crawl mode, got %s", jobs[0].CrawlMode)
 			}
 			tasks, err := store.ListFetchTasks(context.Background(), jobs[0].ID)
 			if err != nil {

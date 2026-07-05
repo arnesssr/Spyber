@@ -5,8 +5,8 @@ package app
 import (
 	"strings"
 
-	"github.com/waymore/spyber/internal/domain"
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 type profileMatch struct {

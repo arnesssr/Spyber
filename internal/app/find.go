@@ -8,20 +8,20 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/waymore/spyber/internal/domain"
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 var ErrNoCandidates = errors.New("no candidates discovered")
 
 type FindRequest struct {
-	CountryCode  string
-	Sector       string
-	Segment      string
-	Query        string
-	Limit        int
-	JobID        domain.ID
-	FetchWorkers int
+	CountryCode string
+	Sector      string
+	Segment     string
+	Query       string
+	Limit       int
+	JobID       domain.ID
+	CrawlMode   string
 }
 
 type FindSummary struct {
@@ -54,7 +54,7 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 	if err != nil {
 		return FindSummary{}, err
 	}
-	limit := normalizeFindLimit(req.Limit)
+	limit := domain.NormalizeFindLimit(req.Limit)
 	existing, err := a.store.ListCompanies(ctx, country)
 	if err != nil {
 		return FindSummary{}, err
@@ -107,7 +107,8 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 		plans = append(plans, plan)
 	}
 	a.updateFindJobSummary(ctx, req.JobID, summary)
-	for result := range a.runCompanyFetchPlans(ctx, profile, plans, req.FetchWorkers) {
+	settings := domain.CrawlSettingsForMode(req.CrawlMode)
+	for result := range a.runCompanyFetchPlans(ctx, profile, plans, settings) {
 		summary.Fetched += result.fetched
 		summary.Contacts += result.contacts
 		summary.DirectEmails += result.directEmails
@@ -141,16 +142,6 @@ func candidateProvider(candidate ports.BusinessCandidate) string {
 		return evidence
 	}
 	return "unknown"
-}
-
-func normalizeFindLimit(limit int) int {
-	if limit <= 0 {
-		return 50
-	}
-	if limit > 1000 {
-		return 1000
-	}
-	return limit
 }
 
 func resolveFindProfile(req FindRequest) (domain.BusinessProfile, error) {

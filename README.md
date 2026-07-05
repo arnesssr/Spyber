@@ -5,7 +5,7 @@ intent, it discovers candidate businesses, crawls public websites, classifies
 evidence, extracts public contact channels, and exports reviewable business
 contacts with source evidence.
 
-Current version: `0.2.2`
+Current version: `0.2.3`
 
 ## Scope
 
@@ -21,64 +21,76 @@ or suppressed contacts from being exported.
 Current v1 capabilities:
 
 - country-scoped discovery
-- profile-driven business search
+- search-intent business discovery
 - web-search candidate discovery
 - source-page candidate discovery
 - autonomous country discovery through public indexes
 - public website crawling with per-host delay and safe fetch limits
-- segment and ecommerce signal classification
+- crawl-mode background find jobs
+- contact-sieve filtering for searched sites
 - public email extraction
 - generic business email preference
 - review and suppression workflow
 - auditable CSV export
 - Go-rendered operator UI
 
-## Business Profiles
+## Search Model
 
-Spyber ships with a small public profile catalog:
+The primary flow is a country plus a search term:
 
 ```text
-Commerce -> Wholesalers
-Commerce -> Retailers
-Commerce -> Ecommerce
-Services -> Salons
+KE + salon
+KE + distributor
+KE + farm equipment
 ```
 
-Each profile defines discovery terms, include terms, exclude terms, and an
-acceptance threshold. Custom search terms are also supported for early
-exploration, for example `--query salon`.
+Spyber discovers related public sites, crawls contact-heavy pages, and keeps
+only contact rows that retain source evidence.
 
 ## Not Done Yet
 
 - Phone extraction is not implemented yet.
 - Browser automation is not implemented yet.
 - Reviewed precision reporting is not modeled yet.
-- Local JSON is a development store, not the production durability target.
+- The local JSON store is only an explicit development override.
 
 ## Stack
 
 - Go only for the CLI, engine, and server-rendered UI
-- PostgreSQL as the reliable source of truth when `SPYBER_DATABASE_URL` is set
-- local JSON store as a lightweight fallback only
+- PostgreSQL as the normal reliable source of truth
+- explicit `SPYBER_STORE` JSON override for development and tests only
 - no TypeScript or frontend build system in v1
 
 ## Quick Start
 
+Install from GitHub:
+
+```bash
+go install github.com/arnesssr/Spyber/cmd/spyber@latest
+go install github.com/arnesssr/Spyber/cmd/spyberd@latest
+```
+
+Or install from a local clone:
+
+```bash
+make install
+export PATH="$(go env GOPATH)/bin:$PATH"
+make install-check
+```
+
 ```bash
 go test ./...
+export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
 go run ./cmd/spyber init
 go run ./cmd/spyber version
-go run ./cmd/spyber profiles
-go run ./cmd/spyber find --country KE --sector commerce --segment wholesalers --limit 50
-go run ./cmd/spyber find --country KE --query salon --limit 50
+go run ./cmd/spyber find --country KE --query salon --limit 50 --crawl-mode deep
+go run ./cmd/spyber find --country KE --query distributor --limit 100 --crawl-mode exhaustive
 go run ./cmd/spyber companies list --country KE
 go run ./cmd/spyber contacts list --country KE
 go run ./cmd/spyber export --country KE --format csv --only generic
 ```
 
-The default local store is `.spyber/spyber.json`.
-
-Use PostgreSQL locally or in production:
+Set PostgreSQL locally or in production:
 
 ```bash
 export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
@@ -119,10 +131,10 @@ pipeline.
 Set `SPYBER_WEBSEARCH_ENDPOINT` to use a compatible search endpoint. By
 default Spyber uses DuckDuckGo Lite for no-key candidate discovery.
 
-Use the country field and `Find businesses` form to choose a business type,
-set a limit, and queue a background find job. Open `Jobs` to watch the run
-complete while the crawler discovers websites and extracts contacts. `Broad
-ecommerce scrape` remains available as a fallback.
+Use the country field and `Search contacts` form to enter a search term, set a
+limit, choose crawl mode, and queue a background find job. Open `Jobs` to watch
+persisted progress while the crawler discovers websites and extracts contacts.
+`Broad ecommerce scrape` remains available as a fallback.
 
 ## Literal Engine Test
 
@@ -130,12 +142,12 @@ Run a real scrape against a country and inspect whether the output matches the
 claim:
 
 ```bash
-rm -f /tmp/spyber-ke.json
-SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber init
-SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber find --country KE --sector commerce --segment wholesalers --limit 5
-SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber companies list --country KE
-SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber contacts list --country KE
-SPYBER_STORE=/tmp/spyber-ke.json go run ./cmd/spyber export --country KE --format csv --only generic
+export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
+go run ./cmd/spyber init
+go run ./cmd/spyber find --country KE --query salon --limit 5 --crawl-mode exhaustive
+go run ./cmd/spyber companies list --country KE
+go run ./cmd/spyber contacts list --country KE
+go run ./cmd/spyber export --country KE --format csv --only generic
 ```
 
 The outcome is acceptable only if exported rows are public business contacts,
@@ -167,6 +179,7 @@ make lines
 
 - [Architecture](docs/architecture.md)
 - [Engine Architecture](docs/engine-architecture.md)
+- [Install](docs/install.md)
 - [Compliance](docs/compliance.md)
 - [Data Model](docs/data-model.md)
 - [Product Engine](docs/product-engine.md)

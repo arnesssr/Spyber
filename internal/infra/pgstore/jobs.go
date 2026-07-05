@@ -7,7 +7,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (s *Store) AddCrawlJob(ctx context.Context, job domain.CrawlJob) error {
@@ -48,12 +48,13 @@ func (s *Store) ListCrawlJobs(ctx context.Context, countryCode string) ([]domain
 func (s *Store) UpsertFindJob(ctx context.Context, job domain.FindJob) error {
 	_, err := s.db.ExecContext(ctx, `
 		INSERT INTO find_jobs (
-			id, country_code, sector, segment, query, limit_count, status, profile_key,
+			id, country_code, sector, segment, query, limit_count, crawl_mode, status, profile_key,
 			candidates, created, duplicates, matched, rejected, fetched, contacts,
 			direct_emails, verified, failures, failure_reason,
 			started_at, finished_at, created_at, updated_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
 		ON CONFLICT (id) DO UPDATE SET
+			crawl_mode = EXCLUDED.crawl_mode,
 			status = EXCLUDED.status,
 			profile_key = EXCLUDED.profile_key,
 			candidates = EXCLUDED.candidates,
@@ -113,7 +114,7 @@ func scanCrawlJob(row scanner) (domain.CrawlJob, error) {
 }
 
 func findJobSelect() string {
-	return `SELECT id, country_code, sector, segment, query, limit_count, status, profile_key,
+	return `SELECT id, country_code, sector, segment, query, limit_count, crawl_mode, status, profile_key,
 		candidates, created, duplicates, matched, rejected, fetched, contacts,
 		direct_emails, verified, failures, failure_reason,
 		started_at, finished_at, created_at, updated_at FROM find_jobs`
@@ -124,7 +125,7 @@ func scanFindJob(row scanner) (domain.FindJob, error) {
 	var started, finished sql.NullTime
 	err := row.Scan(
 		&item.ID, &item.CountryCode, &item.Sector, &item.Segment, &item.Query, &item.Limit,
-		&item.Status, &item.ProfileKey, &item.Candidates, &item.Created, &item.Duplicates,
+		&item.CrawlMode, &item.Status, &item.ProfileKey, &item.Candidates, &item.Created, &item.Duplicates,
 		&item.Matched, &item.Rejected, &item.Fetched, &item.Contacts, &item.DirectEmails,
 		&item.Verified, &item.Failures, &item.FailureReason, &started, &finished,
 		&item.CreatedAt, &item.UpdatedAt,
@@ -137,7 +138,7 @@ func scanFindJob(row scanner) (domain.FindJob, error) {
 func findJobArgs(job domain.FindJob) []any {
 	return []any{
 		job.ID, job.CountryCode, job.Sector, job.Segment, job.Query, job.Limit,
-		job.Status, job.ProfileKey, job.Candidates, job.Created, job.Duplicates,
+		domain.NormalizeCrawlMode(job.CrawlMode), job.Status, job.ProfileKey, job.Candidates, job.Created, job.Duplicates,
 		job.Matched, job.Rejected, job.Fetched, job.Contacts, job.DirectEmails,
 		job.Verified, job.Failures, job.FailureReason, job.StartedAt, job.FinishedAt,
 		job.CreatedAt, job.UpdatedAt,

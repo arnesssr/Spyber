@@ -41,6 +41,7 @@ var schemaStatements = []string{
 		segment TEXT NOT NULL,
 		query TEXT NOT NULL DEFAULT '',
 		limit_count INTEGER NOT NULL,
+		crawl_mode TEXT NOT NULL DEFAULT 'deep',
 		status TEXT NOT NULL,
 		profile_key TEXT NOT NULL DEFAULT '',
 		candidates INTEGER NOT NULL DEFAULT 0,
@@ -130,4 +131,5 @@ var schemaStatements = []string{
 	`CREATE INDEX IF NOT EXISTS idx_fetch_tasks_job_status ON fetch_tasks(find_job_id, status)`,
 	`CREATE INDEX IF NOT EXISTS idx_fetch_tasks_company ON fetch_tasks(company_id)`,
 	`CREATE INDEX IF NOT EXISTS idx_audit_events_target ON audit_events(target_type, target_id)`,
+	`ALTER TABLE find_jobs ADD COLUMN IF NOT EXISTS crawl_mode TEXT NOT NULL DEFAULT 'deep'`,
 }

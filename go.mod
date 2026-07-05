@@ -1,4 +1,4 @@
-module github.com/waymore/spyber
+module github.com/arnesssr/Spyber
 
 go 1.26
 

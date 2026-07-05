@@ -15,7 +15,7 @@ country + business intent + limit
 -> company dedupe
 -> fetch task planning
 -> controlled parallel fetching
--> profile scoring
+-> contact sieve
 -> contact extraction
 -> review/export
 ```
@@ -32,17 +32,33 @@ Manual URL entry is an advanced fallback, not the core product.
 
 ## Fetch Strategy
 
-Each matched candidate becomes a company fetch plan. The first task set is:
+Each discovered candidate becomes a company fetch plan. The first task set is:
 
 - root domain
 - original candidate URL
 - `/contact`
 - `/contact-us`
+- `/contacts`
+- `/support`
+- `/customer-service`
+- `/help`
+- `/locations`
+- `/branches`
+- `/wholesale`
+- `/distributors`
 - `/about`
 - `/sitemap.xml`
+- `/sitemap_index.xml`
 
-The engine may add discovered contact links while processing a company, capped
-per company so a single site cannot explode the crawl.
+The engine may add discovered contact links while processing a company. Crawl
+mode controls how far that site-context crawl can expand:
+
+- `standard`: bounded crawl for quick checks.
+- `deep`: broader contact-page crawl for normal operator work.
+- `exhaustive`: no page-count cap inside the discovered site context.
+
+All modes still keep URL dedupe, request timeouts, private-network blocking,
+response-size limits, and per-host delay.
 
 ## Discovery Providers
 
@@ -62,12 +78,13 @@ Spyber does not fire unlimited requests. It uses controlled parallelism:
 - UI find actions create queued background jobs
 - the local UI server runs one find job at a time
 - each job plans many company fetches
-- workers process different companies in parallel
+- each job stores its requested crawl mode
+- fetch executors process different companies in parallel
 - the HTTP fetcher keeps a per-host delay
 - each URL attempt is persisted as a fetch task
 
-The current default worker count is conservative. It can be raised later after
-the fetch task table and failure metrics show where the real bottlenecks are.
+The user chooses crawl mode, not executor counts. The engine derives internal
+parallelism and per-site expansion from that mode.
 
 ## Failure Taxonomy
 
@@ -89,16 +106,16 @@ rate limits, blocked websites, and true no-contact outcomes.
 
 ## Intent Expansion
 
-Custom search terms are expanded before discovery and scoring. For example:
+Custom search terms are expanded before discovery. For example:
 
 ```text
-shop -> commerce/retailers + store, products, cart, checkout, delivery
-salon -> services/salons + hairdresser, beauty, barber, spa, booking
-wholesale -> commerce/wholesalers + supplier, distributor, bulk, trade account
+shop -> store, products, cart, checkout, delivery
+salon -> hairdresser, beauty, barber, spa, booking
+wholesale -> supplier, distributor, bulk, trade account
 ```
 
 This is a deterministic first version. Later versions can add persistent custom
-business profiles, embeddings, or optional AI classification, but the engine
+intent dictionaries, embeddings, or optional AI classification, but the engine
 must remain explainable and testable.
 
 ## Export Standard
@@ -116,8 +133,8 @@ Rejected businesses and suppressed contacts must not contribute export rows.
 
 ## Current Limits
 
-- PostgreSQL is the reliable store when `SPYBER_DATABASE_URL` is set.
-- Local JSON storage is for development, not high-volume production.
+- PostgreSQL is the normal reliable store.
+- Local JSON storage is only an explicit development override.
 - Browser automation is not part of the default fetch path yet.
 - Phone and WhatsApp extraction are not implemented yet.
 - Search provider quality still depends on public result availability and blocking behavior.

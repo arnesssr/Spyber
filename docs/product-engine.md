@@ -8,16 +8,16 @@ what Spyber is supposed to do and how we judge whether it works.
 The user wants:
 
 ```text
-Find businesses of type X in country Y and return usable public contacts.
+Search for an intent in country Y and return usable public contacts.
 ```
 
 The user should not need to know business URLs.
 
 ## Current Product Claim
 
-Spyber can discover a measurable set of public businesses for a country and
-profile, crawl their public websites, classify profile evidence, extract public
-contact emails, and export source-backed rows after suppression checks.
+Spyber can discover a measurable set of public sites for a country and search
+term, crawl their public websites, extract public contact emails, and export
+source-backed rows after suppression checks.
 
 It does not claim to find every business in a country.
 
@@ -29,7 +29,7 @@ country + business intent + limit
 -> canonicalization and dedupe
 -> fetch task planning
 -> public website crawl
--> evidence scoring
+-> contact sieve
 -> contact extraction
 -> review, suppression, export
 ```
@@ -41,12 +41,12 @@ country + business intent + limit
 - **Provider attribution:** find summaries show candidate counts by provider.
 - **Canonicalization:** normalize country codes, URLs, hosts, and emails.
 - **Deduplication:** avoid adding the same company host or contact email twice.
-- **Intent expansion:** expand custom terms such as `shop` or `salon` into
-  related discovery and scoring terms.
+- **Intent expansion:** expand terms such as `shop` or `salon` into related
+  discovery terms without binding them to fixed business categories.
 - **Fetch task planning:** fetch root, candidate, contact, about, and sitemap
   URLs with persisted status.
-- **Profile scoring:** use include terms, exclude terms, discovery hints,
-  storefront signals, and profile-specific thresholds.
+- **Contact sieve:** keep candidates that produce public contact signals and
+  reject blocked or duplicate results.
 - **Contact extraction:** extract public emails, classify generic/named/unknown,
   and keep source URLs.
 - **Export gating:** exclude suppressed contacts and rejected businesses.
@@ -67,17 +67,6 @@ Every serious run should be judged by:
 - duplicate rate
 - reviewed precision
 
-## Profiles
-
-The public profile catalog currently covers:
-
-- `commerce/wholesalers`
-- `commerce/retailers`
-- `commerce/ecommerce`
-- `services/salons`
-
-Custom query profiles are allowed for exploratory searches.
-
 ## Current Gaps
 
 - Phone extraction is not implemented yet.
@@ -85,7 +74,7 @@ Custom query profiles are allowed for exploratory searches.
 - Browser automation fallback is not implemented yet.
 - Search quality still depends on public result availability and blocking behavior.
 - Reviewed precision reports are not modeled yet.
-- Local JSON is a development store, not the production durability target.
+- Local JSON is only an explicit development override.
 
 ## Acceptance Standard
 
@@ -96,7 +85,7 @@ A run is useful only when:
 - suppressed emails do not export
 - rejected businesses do not export
 - contact rows are tied to matched businesses
-- the operator can inspect why a business matched
+- the operator can inspect source evidence
 - the operator can see which providers supplied candidates
 
 ## Literal Local Test

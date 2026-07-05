@@ -13,12 +13,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/waymore/spyber/internal/domain"
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 const collectionsURL = "https://index.commoncrawl.org/collinfo.json"
-const userAgent = "Spyber/0.2.2 (+https://github.com/arnesssr/Spyber)"
+const userAgent = "Spyber/0.2.3 (+https://github.com/arnesssr/Spyber)"
 
 type Finder struct {
 	IndexAPI string

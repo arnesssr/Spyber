@@ -47,3 +47,19 @@ func TestClassifyContactType(t *testing.T) {
 		}
 	}
 }
+
+func TestNormalizeFindJobLimits(t *testing.T) {
+	if got := NormalizeFindLimit(0); got != DefaultFindLimit {
+		t.Fatalf("expected default find limit, got %d", got)
+	}
+	if got := NormalizeFindLimit(MaxFindLimit + 1); got != MaxFindLimit {
+		t.Fatalf("expected max find limit, got %d", got)
+	}
+	if got := NormalizeCrawlMode(""); got != DefaultCrawlMode {
+		t.Fatalf("expected default crawl mode, got %s", got)
+	}
+	settings := CrawlSettingsForMode(CrawlModeExhaustive)
+	if settings.FetchParallelism != 100 || settings.MaxPagesPerCompany != 0 {
+		t.Fatalf("unexpected exhaustive settings: %+v", settings)
+	}
+}

@@ -22,6 +22,10 @@ func (p BusinessProfile) Key() string {
 	return ProfileKey(p.Sector, p.Segment)
 }
 
+func (p BusinessProfile) ContactSieveOnly() bool {
+	return p.Sector == "search"
+}
+
 func ProfileKey(sector, segment string) string {
 	return normalizeProfilePart(sector) + "/" + normalizeProfilePart(segment)
 }
@@ -91,15 +95,15 @@ func CustomBusinessProfile(query string) (BusinessProfile, error) {
 	if len(terms) == 0 {
 		return BusinessProfile{}, fmt.Errorf("query must contain searchable words")
 	}
-	sector, segment := InferIntentProfile(query)
+	_, segment := InferIntentProfile(query)
 	if segment == "" {
-		segment = strings.Join(splitProfileTerms(query), "-")
+		segment = "contacts"
 	}
 	return BusinessProfile{
-		Sector:         sector,
+		Sector:         "search",
 		Segment:        segment,
-		Label:          "Custom / " + query,
-		Description:    "Businesses matching the operator search terms.",
+		Label:          "Search / " + query,
+		Description:    "Public sites matching the operator search terms.",
 		DiscoveryTerms: terms,
 		IncludeTerms:   terms,
 		ExcludeTerms:   blockedBusinessTerms(),
@@ -109,19 +113,7 @@ func CustomBusinessProfile(query string) (BusinessProfile, error) {
 
 func InferIntentProfile(query string) (string, string) {
 	terms := splitProfileTerms(query)
-	for _, term := range terms {
-		switch term {
-		case "shop", "store", "retail", "retailer", "boutique", "mall":
-			return "commerce", "retailers"
-		case "wholesale", "wholesaler", "supplier", "distributor", "bulk":
-			return "commerce", "wholesalers"
-		case "ecommerce", "checkout", "cart", "online":
-			return "commerce", "ecommerce"
-		case "salon", "hair", "hairdresser", "beauty", "barber", "spa":
-			return "services", "salons"
-		}
-	}
-	return "custom", strings.Join(terms, "-")
+	return "search", strings.Join(terms, "-")
 }
 
 func ExpandIntentTerms(query string) []string {

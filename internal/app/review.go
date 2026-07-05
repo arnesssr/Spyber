@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (a *App) ListContacts(ctx context.Context, countryCode string) ([]domain.Contact, error) {

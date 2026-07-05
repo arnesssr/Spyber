@@ -1,17 +1,17 @@
 # Data Model
 
-PostgreSQL is the reliable source of truth when `SPYBER_DATABASE_URL` is set.
-The local JSON store mirrors the core shape only as a lightweight fallback.
+PostgreSQL is the reliable source of truth. The local JSON store mirrors the
+core shape only for explicit development runs.
 
 ## Core Entities
 
 - `sources`: allowed discovery inputs per country.
 - `companies`: normalized business candidates.
-- `find_jobs`: profile-driven discovery and crawl runs.
+- `find_jobs`: search-driven discovery and crawl runs.
 - `fetch_tasks`: individual URL attempts with status and failure reason.
 - `crawl_jobs`: crawl attempts and failure reasons.
 - `contacts`: extracted emails with source evidence.
-- `evidence`: country, profile, and commerce classification evidence.
+- `evidence`: source, search, and classification evidence.
 - `suppression`: contacts excluded from future export.
 - `exports`: export events and filters.
 - `audit_events`: operator and system actions.

@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS find_jobs (
   segment TEXT NOT NULL,
   query TEXT NOT NULL DEFAULT '',
   limit_count INTEGER NOT NULL,
+  crawl_mode TEXT NOT NULL DEFAULT 'deep',
   status TEXT NOT NULL,
   profile_key TEXT NOT NULL DEFAULT '',
   candidates INTEGER NOT NULL DEFAULT 0,

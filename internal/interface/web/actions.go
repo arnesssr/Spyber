@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
-	"github.com/waymore/spyber/internal/app"
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/app"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (s *Server) addSource(w http.ResponseWriter, r *http.Request) {
@@ -65,13 +64,11 @@ func (s *Server) scrapeCountry(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) findBusinesses(w http.ResponseWriter, r *http.Request) {
 	country := currentCountry(r)
-	sector, segment := profileParts(r.FormValue("profile"))
 	job, err := s.app.CreateFindJob(r.Context(), app.FindRequest{
 		CountryCode: country,
-		Sector:      sector,
-		Segment:     segment,
 		Query:       r.FormValue("query"),
-		Limit:       formInt(r, "limit", 50),
+		Limit:       formInt(r, "limit", domain.DefaultFindLimit),
+		CrawlMode:   r.FormValue("crawl_mode"),
 	})
 	notice := "find job queued"
 	if err != nil {
@@ -92,14 +89,6 @@ func (s *Server) enqueueFindJob(id domain.ID) bool {
 	default:
 		return false
 	}
-}
-
-func profileParts(value string) (string, string) {
-	parts := strings.SplitN(value, "/", 2)
-	if len(parts) == 2 {
-		return parts[0], parts[1]
-	}
-	return "commerce", "wholesalers"
 }
 
 func formInt(r *http.Request, key string, fallback int) int {

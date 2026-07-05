@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 type failingFinder struct{}

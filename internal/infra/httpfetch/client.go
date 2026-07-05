@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/waymore/spyber/internal/domain"
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 type Client struct {

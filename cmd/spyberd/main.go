@@ -9,16 +9,16 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/waymore/spyber/internal/app"
-	"github.com/waymore/spyber/internal/infra/commoncrawl"
-	"github.com/waymore/spyber/internal/infra/countryfinders"
-	"github.com/waymore/spyber/internal/infra/htmlparse"
-	"github.com/waymore/spyber/internal/infra/httpfetch"
-	"github.com/waymore/spyber/internal/infra/overpass"
-	"github.com/waymore/spyber/internal/infra/storeconfig"
-	"github.com/waymore/spyber/internal/infra/websearch"
-	"github.com/waymore/spyber/internal/interface/web"
-	"github.com/waymore/spyber/internal/version"
+	"github.com/arnesssr/Spyber/internal/app"
+	"github.com/arnesssr/Spyber/internal/infra/commoncrawl"
+	"github.com/arnesssr/Spyber/internal/infra/countryfinders"
+	"github.com/arnesssr/Spyber/internal/infra/htmlparse"
+	"github.com/arnesssr/Spyber/internal/infra/httpfetch"
+	"github.com/arnesssr/Spyber/internal/infra/overpass"
+	"github.com/arnesssr/Spyber/internal/infra/storeconfig"
+	"github.com/arnesssr/Spyber/internal/infra/websearch"
+	"github.com/arnesssr/Spyber/internal/interface/web"
+	"github.com/arnesssr/Spyber/internal/version"
 )
 
 func main() {

@@ -2,12 +2,19 @@
 
 ## First Run
 
+Install:
+
 ```bash
+go install github.com/arnesssr/Spyber/cmd/spyber@latest
+go install github.com/arnesssr/Spyber/cmd/spyberd@latest
+```
+
+```bash
+export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
 spyber init
 spyber version
-spyber profiles
-spyber find --country KE --sector commerce --segment wholesalers --limit 50
-spyber find --country KE --query salon --limit 50
+spyber find --country KE --query salon --limit 50 --crawl-mode deep
+spyber find --country KE --query distributor --limit 100 --crawl-mode exhaustive
 spyber scrape --country KE --limit 50
 spyber source add --country GB --type seed --url https://example.com
 spyber discover --country GB --domain https://shop.example
@@ -30,7 +37,7 @@ The browser username is `admin`; the password is the token.
 
 ## PostgreSQL
 
-Set `SPYBER_DATABASE_URL` to use PostgreSQL instead of the fallback JSON store:
+Set `SPYBER_DATABASE_URL` to use PostgreSQL:
 
 ```bash
 export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
@@ -38,9 +45,10 @@ spyber init
 make run-ui
 ```
 
-The home screen `Find businesses` action queues a background job. Open `Jobs`
-to watch discovery, crawl, contact extraction, and verification progress.
-Manual sources and broad ecommerce scraping are secondary paths.
+The home screen `Search contacts` action queues a background job with selectable
+crawl mode. Open `Jobs` to watch discovery, crawl, contact extraction, and
+verification progress. Manual sources and broad ecommerce scraping are
+secondary paths.
 
 ## Search Provider
 

@@ -23,32 +23,31 @@ services, and prints results.
 The architecture should grow by strengthening boundaries, not by creating a
 larger handler or crawler file.
 
-- Keep PostgreSQL repositories behind `internal/ports`; keep JSON as a local fallback only.
+- Keep PostgreSQL repositories behind `internal/ports`; keep JSON only as an explicit development override.
 - Add durable fetch queues before increasing crawl volume further.
-- Add durable job state before distributed workers.
+- Add durable job state before distributed fetch executors.
 - Keep web search, Overpass, and Common Crawl integrations behind `CountryFinder`
   and `BusinessSearcher`.
-- Keep scoring/profile rules in app/domain code, not templates.
+- Keep search, crawl mode, and sieve rules in app/domain code, not templates.
 - Add metrics around discovery, dedupe, crawl success, match rate, and export.
 - Keep live-network checks outside `make test`.
 
 ## Source Of Truth
 
-PostgreSQL is the reliable source of truth when `SPYBER_DATABASE_URL` is set.
-The JSON store remains a fallback for lightweight local runs, not the preferred
-engine store.
+PostgreSQL is the reliable source of truth. The JSON store remains only for
+explicit development runs.
 
 ## Workflow
 
-1. Receive country, profile or query, and limit.
+1. Receive country, search query, crawl mode, and limit.
 2. Persist a find job for UI progress and auditability.
 3. Discover candidates from country data, source pages, or manual sources.
 4. Canonicalize and dedupe companies.
 5. Plan fetch tasks for root, candidate, contact, about, and sitemap URLs.
 6. Fetch planned tasks with controlled parallelism.
-7. Score evidence against the selected business profile.
+7. Sieve candidates by public contact signals and blocked terms.
 8. Extract public contacts with source URLs.
-9. Reject non-matching businesses before export.
+9. Reject non-contact or blocked businesses before export.
 10. Verify, review, suppress, and export compliant records.
 11. Maintain suppression and audit history.
 

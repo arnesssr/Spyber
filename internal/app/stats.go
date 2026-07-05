@@ -5,7 +5,7 @@ package app
 import (
 	"context"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 type DashboardStats struct {

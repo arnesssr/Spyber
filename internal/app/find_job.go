@@ -5,23 +5,26 @@ package app
 import (
 	"context"
 	"fmt"
+	"strings"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (a *App) CreateFindJob(ctx context.Context, req FindRequest) (domain.FindJob, error) {
 	sector := req.Sector
 	segment := req.Segment
-	if sector == "" && req.Query == "" {
-		sector = "commerce"
+	query := strings.TrimSpace(req.Query)
+	if sector == "" && query == "" {
+		query = "business"
 	}
-	if segment == "" && req.Query == "" {
+	if segment == "" && query == "" {
 		segment = "wholesalers"
 	}
-	job, err := domain.NewFindJob(req.CountryCode, sector, segment, req.Query, req.Limit, a.now())
+	job, err := domain.NewFindJob(req.CountryCode, sector, segment, query, req.Limit, a.now())
 	if err != nil {
 		return domain.FindJob{}, err
 	}
+	job.CrawlMode = domain.NormalizeCrawlMode(req.CrawlMode)
 	if err := a.store.UpsertFindJob(ctx, job); err != nil {
 		return domain.FindJob{}, err
 	}
@@ -42,6 +45,7 @@ func (a *App) RunFindJob(ctx context.Context, id domain.ID) error {
 	}
 	started := a.now().UTC()
 	job.Status = domain.JobRunning
+	job.CrawlMode = domain.NormalizeCrawlMode(job.CrawlMode)
 	job.StartedAt = &started
 	job.UpdatedAt = started
 	if err := a.store.UpsertFindJob(ctx, job); err != nil {
@@ -54,6 +58,7 @@ func (a *App) RunFindJob(ctx context.Context, id domain.ID) error {
 		Query:       job.Query,
 		Limit:       job.Limit,
 		JobID:       job.ID,
+		CrawlMode:   job.CrawlMode,
 	})
 	finished := a.now().UTC()
 	job.Status = domain.JobSucceeded

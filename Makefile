@@ -1,4 +1,4 @@
-.PHONY: test fmt vet build check-build run-ui smoke live-test-ke lines
+.PHONY: test fmt vet build install install-cli install-ui install-check check-build run-ui smoke live-test-ke lines
 
 test:
 	go test ./...
@@ -12,6 +12,19 @@ vet:
 build:
 	go build -o bin/spyber ./cmd/spyber
 	go build -o bin/spyberd ./cmd/spyberd
+
+install: install-cli install-ui
+
+install-cli:
+	go install ./cmd/spyber
+
+install-ui:
+	go install ./cmd/spyberd
+
+install-check:
+	command -v spyber
+	command -v spyberd
+	spyber version
 
 check-build:
 	go build -o /tmp/spyber-check ./cmd/spyber

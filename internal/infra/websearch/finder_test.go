@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 func TestParseResultsDecodesAndFilters(t *testing.T) {

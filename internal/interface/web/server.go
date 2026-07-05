@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/waymore/spyber/internal/app"
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/app"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 //go:embed templates/*.html static/*.css

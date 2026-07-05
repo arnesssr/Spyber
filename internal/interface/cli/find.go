@@ -9,8 +9,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/waymore/spyber/internal/app"
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/app"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (r *runner) find(ctx context.Context, args []string) error {
@@ -21,6 +21,7 @@ func (r *runner) find(ctx context.Context, args []string) error {
 	segment := fs.String("segment", "wholesalers", "business segment")
 	query := fs.String("query", "", "custom search term")
 	limit := fs.Int("limit", 50, "maximum candidates")
+	crawlMode := fs.String("crawl-mode", domain.DefaultCrawlMode, "standard, deep, or exhaustive")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -30,14 +31,16 @@ func (r *runner) find(ctx context.Context, args []string) error {
 		Segment:     *segment,
 		Query:       *query,
 		Limit:       *limit,
+		CrawlMode:   *crawlMode,
 	})
 	if err != nil {
 		return err
 	}
 	fmt.Fprintf(
 		r.out,
-		"profile=%s candidates=%d created=%d duplicates=%d matched=%d rejected=%d fetched=%d contacts=%d direct_emails=%d verified=%d failures=%d providers=%s\n",
+		"profile=%s mode=%s candidates=%d created=%d duplicates=%d matched=%d rejected=%d fetched=%d contacts=%d direct_emails=%d verified=%d failures=%d providers=%s\n",
 		summary.Profile.Key(),
+		domain.NormalizeCrawlMode(*crawlMode),
 		summary.Candidates,
 		summary.Created,
 		summary.Duplicates,

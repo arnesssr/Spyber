@@ -4,6 +4,21 @@ package domain
 
 import "time"
 
+const (
+	DefaultFindLimit    = 50
+	MaxFindLimit        = 1000
+	CrawlModeStandard   = "standard"
+	CrawlModeDeep       = "deep"
+	CrawlModeExhaustive = "exhaustive"
+	DefaultCrawlMode    = CrawlModeDeep
+)
+
+type CrawlSettings struct {
+	Mode               string
+	FetchParallelism   int
+	MaxPagesPerCompany int
+}
+
 type FindJob struct {
 	ID            ID         `json:"id"`
 	CountryCode   string     `json:"country_code"`
@@ -11,6 +26,7 @@ type FindJob struct {
 	Segment       string     `json:"segment"`
 	Query         string     `json:"query"`
 	Limit         int        `json:"limit"`
+	CrawlMode     string     `json:"crawl_mode"`
 	Status        JobStatus  `json:"status"`
 	ProfileKey    string     `json:"profile_key"`
 	Candidates    int        `json:"candidates"`
@@ -35,12 +51,6 @@ func NewFindJob(countryCode, sector, segment, query string, limit int, now time.
 	if err != nil {
 		return FindJob{}, err
 	}
-	if limit <= 0 {
-		limit = 50
-	}
-	if limit > 1000 {
-		limit = 1000
-	}
 	now = now.UTC()
 	return FindJob{
 		ID:          NewID("find"),
@@ -48,11 +58,43 @@ func NewFindJob(countryCode, sector, segment, query string, limit int, now time.
 		Sector:      sector,
 		Segment:     segment,
 		Query:       query,
-		Limit:       limit,
+		Limit:       NormalizeFindLimit(limit),
+		CrawlMode:   DefaultCrawlMode,
 		Status:      JobQueued,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}, nil
+}
+
+func NormalizeFindLimit(limit int) int {
+	if limit <= 0 {
+		return DefaultFindLimit
+	}
+	if limit > MaxFindLimit {
+		return MaxFindLimit
+	}
+	return limit
+}
+
+func NormalizeCrawlMode(mode string) string {
+	switch mode {
+	case CrawlModeStandard, CrawlModeDeep, CrawlModeExhaustive:
+		return mode
+	default:
+		return DefaultCrawlMode
+	}
+}
+
+func CrawlSettingsForMode(mode string) CrawlSettings {
+	mode = NormalizeCrawlMode(mode)
+	switch mode {
+	case CrawlModeStandard:
+		return CrawlSettings{Mode: mode, FetchParallelism: 10, MaxPagesPerCompany: 20}
+	case CrawlModeExhaustive:
+		return CrawlSettings{Mode: mode, FetchParallelism: 100, MaxPagesPerCompany: 0}
+	default:
+		return CrawlSettings{Mode: mode, FetchParallelism: 50, MaxPagesPerCompany: 100}
+	}
 }
 
 func (j FindJob) Request() (sector, segment, query string, limit int) {

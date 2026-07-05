@@ -1,25 +1,27 @@
 {{define "content"}}
 <section class="page-head">
   <div>
-    <h1>Find businesses</h1>
-    <p>{{.Country}} · choose a business type or search term.</p>
+    <h1>Search contacts</h1>
+    <p>{{.Country}} · find related sites and extract public contacts.</p>
   </div>
 </section>
 
 <form class="find-form" method="post" action="/find">
   <input type="hidden" name="country" value="{{.Country}}">
-  <label>Business type
-    <select name="profile">
-      {{range .Profiles}}<option value="{{.Sector}}/{{.Segment}}">{{.Label}}</option>{{end}}
-    </select>
-  </label>
-  <label>Custom search
-    <input name="query" placeholder="salon, distributor, cosmetics">
+  <label>Search term
+    <input name="query" placeholder="salon, distributor, cosmetics" required>
   </label>
   <label>Limit
-    <input name="limit" type="number" min="1" max="1000" value="50">
+    <input name="limit" type="number" min="1" max="1000" value="100">
   </label>
-  <button type="submit">Find businesses</button>
+  <label>Crawl mode
+    <select name="crawl_mode">
+      <option value="standard">Standard</option>
+      <option value="deep" selected>Deep</option>
+      <option value="exhaustive">Exhaustive</option>
+    </select>
+  </label>
+  <button type="submit">Start crawl</button>
 </form>
 
 <section class="metrics" aria-label="Status">

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.3
+
+- Add persisted crawl-mode settings for background find jobs.
+- Add UI crawl-mode controls and job progress bars.
+- Expand per-company fetch planning to more high-signal contact paths.
+- Add exhaustive crawl mode for uncapped site-context contact crawling.
+- Align the module path with the public GitHub repo and add install targets.
+- Require PostgreSQL by default; keep JSON only as an explicit development override.
+
 ## 0.2.2
 
 - Add provider attribution to discovered business candidates.

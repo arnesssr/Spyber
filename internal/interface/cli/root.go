@@ -11,16 +11,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/waymore/spyber/internal/app"
-	"github.com/waymore/spyber/internal/domain"
-	"github.com/waymore/spyber/internal/infra/commoncrawl"
-	"github.com/waymore/spyber/internal/infra/countryfinders"
-	"github.com/waymore/spyber/internal/infra/htmlparse"
-	"github.com/waymore/spyber/internal/infra/httpfetch"
-	"github.com/waymore/spyber/internal/infra/overpass"
-	"github.com/waymore/spyber/internal/infra/storeconfig"
-	"github.com/waymore/spyber/internal/infra/websearch"
-	"github.com/waymore/spyber/internal/version"
+	"github.com/arnesssr/Spyber/internal/app"
+	"github.com/arnesssr/Spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/infra/commoncrawl"
+	"github.com/arnesssr/Spyber/internal/infra/countryfinders"
+	"github.com/arnesssr/Spyber/internal/infra/htmlparse"
+	"github.com/arnesssr/Spyber/internal/infra/httpfetch"
+	"github.com/arnesssr/Spyber/internal/infra/overpass"
+	"github.com/arnesssr/Spyber/internal/infra/storeconfig"
+	"github.com/arnesssr/Spyber/internal/infra/websearch"
+	"github.com/arnesssr/Spyber/internal/version"
 )
 
 func Main(args []string, stdout, stderr io.Writer) int {
@@ -402,8 +402,8 @@ func usage(w io.Writer) {
 		"  init",
 		"  version",
 		"  profiles",
-		"  find --country KE --sector commerce --segment wholesalers --limit 50",
-		"  find --country KE --query salon --limit 50",
+		"  find --country KE --query salon --limit 50 --crawl-mode deep",
+		"  find --country KE --query distributor --limit 100 --crawl-mode exhaustive",
 		"  scrape --country KE --limit 50",
 		"  source add --country GB --type seed --url https://example.com",
 		"  source list --country GB",

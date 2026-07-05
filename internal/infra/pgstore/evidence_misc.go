@@ -5,7 +5,7 @@ package pgstore
 import (
 	"context"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 func (s *Store) AddEvidence(ctx context.Context, evidence domain.Evidence) error {

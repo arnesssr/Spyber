@@ -5,7 +5,7 @@ package ports
 import (
 	"context"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 type Store interface {

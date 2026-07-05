@@ -9,11 +9,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/waymore/spyber/internal/domain"
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
-
-const defaultFetchWorkers = 10
 
 type companyFetchPlan struct {
 	company        domain.Company
@@ -36,22 +34,19 @@ type fetchedPage struct {
 	url      string
 }
 
-func (a *App) runCompanyFetchPlans(ctx context.Context, profile domain.BusinessProfile, plans []companyFetchPlan, workers int) <-chan companyFetchResult {
-	if workers <= 0 {
-		workers = defaultFetchWorkers
-	}
-	if workers > 50 {
-		workers = 50
+func (a *App) runCompanyFetchPlans(ctx context.Context, profile domain.BusinessProfile, plans []companyFetchPlan, settings domain.CrawlSettings) <-chan companyFetchResult {
+	if settings.FetchParallelism <= 0 {
+		settings = domain.CrawlSettingsForMode(settings.Mode)
 	}
 	in := make(chan companyFetchPlan)
 	out := make(chan companyFetchResult)
 	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
+	for i := 0; i < settings.FetchParallelism; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for plan := range in {
-				out <- a.runCompanyFetchPlan(ctx, profile, plan)
+				out <- a.runCompanyFetchPlan(ctx, profile, plan, settings)
 			}
 		}()
 	}
@@ -81,8 +76,17 @@ func (a *App) planCompanyFetches(ctx context.Context, jobID domain.ID, company d
 		{candidate.Website, domain.FetchCandidate},
 		{sitePath(company.WebsiteURL, "/contact"), domain.FetchContact},
 		{sitePath(company.WebsiteURL, "/contact-us"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/contacts"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/support"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/customer-service"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/help"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/locations"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/branches"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/wholesale"), domain.FetchContact},
+		{sitePath(company.WebsiteURL, "/distributors"), domain.FetchContact},
 		{sitePath(company.WebsiteURL, "/about"), domain.FetchAbout},
 		{sitePath(company.WebsiteURL, "/sitemap.xml"), domain.FetchSitemap},
+		{sitePath(company.WebsiteURL, "/sitemap_index.xml"), domain.FetchSitemap},
 	}
 	seen := map[string]bool{}
 	var tasks []domain.FetchTask
@@ -100,7 +104,7 @@ func (a *App) planCompanyFetches(ctx context.Context, jobID domain.ID, company d
 	return companyFetchPlan{company: company, candidate: candidate, candidateMatch: match, tasks: tasks}
 }
 
-func (a *App) runCompanyFetchPlan(ctx context.Context, profile domain.BusinessProfile, plan companyFetchPlan) companyFetchResult {
+func (a *App) runCompanyFetchPlan(ctx context.Context, profile domain.BusinessProfile, plan companyFetchPlan, settings domain.CrawlSettings) companyFetchResult {
 	best := plan.candidateMatch
 	var result companyFetchResult
 	var pages []fetchedPage
@@ -120,7 +124,7 @@ func (a *App) runCompanyFetchPlan(ctx context.Context, profile domain.BusinessPr
 		pages = append(pages, page)
 		best = bestProfileMatch(best, scorePageProfile(profile, plan.company, page.analysis))
 		for _, link := range page.analysis.ContactLinks {
-			if len(plan.tasks) >= 10 {
+			if settings.MaxPagesPerCompany > 0 && len(plan.tasks) >= settings.MaxPagesPerCompany {
 				break
 			}
 			next, err := domain.NewFetchTask(task.FindJobID, plan.company.ID, link, domain.FetchContact, a.now())
@@ -133,6 +137,9 @@ func (a *App) runCompanyFetchPlan(ctx context.Context, profile domain.BusinessPr
 		}
 	}
 	result.matched = best.Score >= profile.MinScore && !best.Excluded
+	if profile.ContactSieveOnly() && !best.Excluded && hasContactSignal(plan.candidate, pages) {
+		result.matched = true
+	}
 	a.addProfileEvidence(ctx, plan.company.ID, profile, plan.company.WebsiteURL, best)
 	a.updateCompanyMatch(ctx, plan.company, profile, best)
 	if !result.matched {
@@ -145,6 +152,18 @@ func (a *App) runCompanyFetchPlan(ctx context.Context, profile domain.BusinessPr
 		result.directEmails++
 	}
 	return result
+}
+
+func hasContactSignal(candidate ports.BusinessCandidate, pages []fetchedPage) bool {
+	if candidate.Email != "" {
+		return true
+	}
+	for _, page := range pages {
+		if len(page.analysis.Emails) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func (a *App) runFetchTask(ctx context.Context, task domain.FetchTask) (fetchedPage, bool) {

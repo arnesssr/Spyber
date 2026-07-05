@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/waymore/spyber/internal/ports"
+	"github.com/arnesssr/Spyber/internal/ports"
 )
 
 type Analyzer struct{}

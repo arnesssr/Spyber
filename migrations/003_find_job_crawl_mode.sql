@@ -1,0 +1,2 @@
+ALTER TABLE find_jobs
+  ADD COLUMN IF NOT EXISTS crawl_mode TEXT NOT NULL DEFAULT 'deep';

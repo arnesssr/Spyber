@@ -5,7 +5,7 @@ package main
 import (
 	"os"
 
-	"github.com/waymore/spyber/internal/interface/cli"
+	"github.com/arnesssr/Spyber/internal/interface/cli"
 )
 
 func main() {

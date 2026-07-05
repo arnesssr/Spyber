@@ -8,7 +8,7 @@ import (
 	"encoding/csv"
 	"fmt"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 type ExportOptions struct {

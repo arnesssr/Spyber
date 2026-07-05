@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/waymore/spyber/internal/domain"
+	"github.com/arnesssr/Spyber/internal/domain"
 )
 
 type DiscoverySummary struct {
