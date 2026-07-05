@@ -10,6 +10,7 @@ type BusinessCandidate struct {
 	Email     string
 	SourceURL string
 	Evidence  string
+	Provider  string
 }
 
 type BusinessSearch struct {

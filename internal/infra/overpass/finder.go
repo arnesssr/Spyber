@@ -19,7 +19,7 @@ import (
 )
 
 const defaultEndpoint = "https://overpass-api.de/api/interpreter"
-const userAgent = "Spyber/0.2.1 (+https://github.com/arnesssr/Spyber)"
+const userAgent = "Spyber/0.2.2 (+https://github.com/arnesssr/Spyber)"
 
 type Finder struct {
 	Endpoint string
@@ -201,6 +201,7 @@ func toCandidate(item element) (ports.BusinessCandidate, bool) {
 		Email:     email,
 		SourceURL: fmt.Sprintf("https://www.openstreetmap.org/%s/%d", item.Type, item.ID),
 		Evidence:  "osm_shop_tags",
+		Provider:  "overpass",
 	}, true
 }
 

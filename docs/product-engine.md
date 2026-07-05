@@ -38,6 +38,7 @@ country + business intent + limit
 
 - **Candidate discovery:** web search, OpenStreetMap/Overpass shop tags,
   Common Crawl country TLD indexes, and optional manual sources.
+- **Provider attribution:** find summaries show candidate counts by provider.
 - **Canonicalization:** normalize country codes, URLs, hosts, and emails.
 - **Deduplication:** avoid adding the same company host or contact email twice.
 - **Intent expansion:** expand custom terms such as `shop` or `salon` into
@@ -96,6 +97,7 @@ A run is useful only when:
 - rejected businesses do not export
 - contact rows are tied to matched businesses
 - the operator can inspect why a business matched
+- the operator can see which providers supplied candidates
 
 ## Literal Local Test
 

@@ -5,7 +5,7 @@ intent, it discovers candidate businesses, crawls public websites, classifies
 evidence, extracts public contact channels, and exports reviewable business
 contacts with source evidence.
 
-Current version: `0.2.1`
+Current version: `0.2.2`
 
 ## Scope
 

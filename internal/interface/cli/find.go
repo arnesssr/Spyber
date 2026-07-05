@@ -6,6 +6,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/waymore/spyber/internal/app"
 	"github.com/waymore/spyber/internal/domain"
@@ -34,7 +36,7 @@ func (r *runner) find(ctx context.Context, args []string) error {
 	}
 	fmt.Fprintf(
 		r.out,
-		"profile=%s candidates=%d created=%d duplicates=%d matched=%d rejected=%d fetched=%d contacts=%d direct_emails=%d verified=%d failures=%d\n",
+		"profile=%s candidates=%d created=%d duplicates=%d matched=%d rejected=%d fetched=%d contacts=%d direct_emails=%d verified=%d failures=%d providers=%s\n",
 		summary.Profile.Key(),
 		summary.Candidates,
 		summary.Created,
@@ -46,8 +48,25 @@ func (r *runner) find(ctx context.Context, args []string) error {
 		summary.DirectEmails,
 		summary.Verified,
 		summary.Failures,
+		formatProviders(summary.Providers),
 	)
 	return nil
+}
+
+func formatProviders(providers map[string]int) string {
+	if len(providers) == 0 {
+		return "none"
+	}
+	keys := make([]string, 0, len(providers))
+	for key := range providers {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	var parts []string
+	for _, key := range keys {
+		parts = append(parts, fmt.Sprintf("%s:%d", key, providers[key]))
+	}
+	return strings.Join(parts, ",")
 }
 
 func (r *runner) profiles(ctx context.Context) error {

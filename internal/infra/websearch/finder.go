@@ -19,7 +19,7 @@ import (
 )
 
 const defaultEndpoint = "https://lite.duckduckgo.com/lite/"
-const userAgent = "Spyber/0.2.1 (+https://github.com/arnesssr/Spyber)"
+const userAgent = "Spyber/0.2.2 (+https://github.com/arnesssr/Spyber)"
 
 type Finder struct {
 	Endpoint string
@@ -235,22 +235,39 @@ func parseResults(text, sourceURL, query string, limit int) []ports.BusinessCand
 		}
 		href := firstHref(anchor)
 		raw := decodeResultURL(href)
+		title := cleanTitle(anchor)
 		normalized, host, err := domain.NormalizeWebsite(raw)
-		if err != nil || seen[host] || blockedHost(host) {
+		if err != nil || seen[host] || blockedHost(host) || blockedResult(title, normalized) {
 			continue
 		}
 		seen[host] = true
 		out = append(out, ports.BusinessCandidate{
-			Name:      cleanTitle(anchor),
+			Name:      title,
 			Website:   normalized,
 			SourceURL: sourceURL,
 			Evidence:  "websearch_lite: " + query,
+			Provider:  "websearch",
 		})
 		if limit > 0 && len(out) >= limit {
 			break
 		}
 	}
 	return out
+}
+
+func blockedResult(title, rawURL string) bool {
+	text := strings.ToLower(title + " " + rawURL)
+	blocked := []string{
+		"list of ", "top ", "best ", "directory", "business-list",
+		"branches", "working hours", "contacts and", "/list/",
+		"/tag/", "/category/", "/blog/", "/news/",
+	}
+	for _, item := range blocked {
+		if strings.Contains(text, item) {
+			return true
+		}
+	}
+	return false
 }
 
 func firstHref(anchor string) string {

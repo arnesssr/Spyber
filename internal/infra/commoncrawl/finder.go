@@ -18,7 +18,7 @@ import (
 )
 
 const collectionsURL = "https://index.commoncrawl.org/collinfo.json"
-const userAgent = "Spyber/0.2.1 (+https://github.com/arnesssr/Spyber)"
+const userAgent = "Spyber/0.2.2 (+https://github.com/arnesssr/Spyber)"
 
 type Finder struct {
 	IndexAPI string
@@ -263,6 +263,7 @@ func toCandidate(rawURL string) (ports.BusinessCandidate, bool) {
 		Website:   normalized,
 		SourceURL: normalized,
 		Evidence:  "commoncrawl_country_tld",
+		Provider:  "commoncrawl",
 	}, true
 }
 

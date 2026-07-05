@@ -36,6 +36,7 @@ type FindSummary struct {
 	DirectEmails int
 	Verified     int
 	Failures     int
+	Providers    map[string]int
 }
 
 func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary, error) {
@@ -59,7 +60,7 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 		return FindSummary{}, err
 	}
 	seen := knownHosts(existing)
-	summary := FindSummary{Profile: profile}
+	summary := FindSummary{Profile: profile, Providers: map[string]int{}}
 	candidates, err := a.searchCandidates(ctx, country, profile, limit)
 	if err != nil {
 		return summary, err
@@ -71,6 +72,7 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 	processed := map[string]bool{}
 	for _, candidate := range candidates {
 		summary.Candidates++
+		summary.Providers[candidateProvider(candidate)]++
 		if !candidateAllowed(candidate.Website) {
 			summary.Rejected++
 			continue
@@ -124,6 +126,21 @@ func (a *App) FindBusinesses(ctx context.Context, req FindRequest) (FindSummary,
 	summary.Verified = verified
 	a.updateFindJobSummary(ctx, req.JobID, summary)
 	return summary, nil
+}
+
+func candidateProvider(candidate ports.BusinessCandidate) string {
+	provider := strings.TrimSpace(candidate.Provider)
+	if provider != "" {
+		return provider
+	}
+	evidence := strings.TrimSpace(candidate.Evidence)
+	if cut := strings.Index(evidence, ":"); cut > 0 {
+		return strings.TrimSpace(evidence[:cut])
+	}
+	if evidence != "" {
+		return evidence
+	}
+	return "unknown"
 }
 
 func normalizeFindLimit(limit int) int {

@@ -16,6 +16,7 @@ func TestParseResultsDecodesAndFilters(t *testing.T) {
 	sourceURL := "https://lite.duckduckgo.com/lite/?q=salon"
 	html := `<a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fsalon.example%2Fcontact&amp;rut=abc" class='result-link'>Salon Example</a>
 <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.facebook.com%2Fsalon&amp;rut=abc" class='result-link'>Facebook</a>
+<a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fnews.example%2Ftop-salons-kenya&amp;rut=abc" class='result-link'>Top salons in Kenya</a>
 <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fsalon.example%2Fabout&amp;rut=abc" class='result-link'>Duplicate</a>`
 	candidates := parseResults(html, sourceURL, "salon", 10)
 	if len(candidates) != 1 {
@@ -26,6 +27,9 @@ func TestParseResultsDecodesAndFilters(t *testing.T) {
 	}
 	if candidates[0].Name != "Salon Example" {
 		t.Fatalf("unexpected name: %s", candidates[0].Name)
+	}
+	if candidates[0].Provider != "websearch" {
+		t.Fatalf("unexpected provider: %s", candidates[0].Provider)
 	}
 }
 

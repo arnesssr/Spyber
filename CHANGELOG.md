@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2
+
+- Add provider attribution to discovered business candidates.
+- Show provider counts in CLI find summaries.
+- Filter more list, article, and directory-style search results before crawl.
+
 ## 0.2.1
 
 - Add a web-search discovery provider for autonomous business candidate search.

@@ -72,8 +72,8 @@ func (emptySearchFinder) SearchBusinesses(ctx context.Context, search ports.Busi
 
 func (profileCountryFinder) SearchBusinesses(ctx context.Context, search ports.BusinessSearch) ([]ports.BusinessCandidate, error) {
 	return []ports.BusinessCandidate{
-		{Name: "Wholesale Example", Website: "https://wholesale.example", Email: "info@wholesale.example", SourceURL: "https://www.openstreetmap.org/node/2", Evidence: "wholesale supplier"},
-		{Name: "Wholesale Example Duplicate", Website: "https://wholesale.example/about", SourceURL: "https://example.invalid", Evidence: "duplicate"},
+		{Name: "Wholesale Example", Website: "https://wholesale.example", Email: "info@wholesale.example", SourceURL: "https://www.openstreetmap.org/node/2", Evidence: "wholesale supplier", Provider: "test"},
+		{Name: "Wholesale Example Duplicate", Website: "https://wholesale.example/about", SourceURL: "https://example.invalid", Evidence: "duplicate", Provider: "test"},
 	}, nil
 }
 
@@ -190,6 +190,9 @@ func TestFindBusinessesUsesProfileAndDedupesCompanies(t *testing.T) {
 	}
 	if summary.Contacts != 1 || summary.DirectEmails != 1 {
 		t.Fatalf("expected unique page and direct contacts, got %+v", summary)
+	}
+	if summary.Providers["test"] != 2 {
+		t.Fatalf("expected provider counts, got %+v", summary.Providers)
 	}
 	companies, err := app.ListCompanies(ctx, "KE")
 	if err != nil {
