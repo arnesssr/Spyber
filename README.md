@@ -1,9 +1,9 @@
 # Spyber
 
-Spyber is a Go-first business discovery engine. Given a country and business
-intent, it discovers candidate businesses, crawls public websites, classifies
-evidence, extracts public contact channels, and exports reviewable business
-contacts with source evidence.
+Spyber is a Go-first contact discovery engine. Given a country and search
+intent, it discovers related public business sites, crawls contact-heavy pages,
+sieves public contact channels, and exports reviewable contacts with source
+evidence.
 
 Current version: `0.2.3`
 
@@ -13,9 +13,9 @@ Spyber is not a bulk spam tool and does not claim to find every business in a
 country. The durable product goal is narrower and testable:
 
 ```text
-Find a measurable set of public businesses matching an operator's intent,
-prove why each result matched, extract public contacts, and prevent duplicate
-or suppressed contacts from being exported.
+Find a measurable set of public sites related to an operator's search intent,
+extract source-backed public contacts, and prevent duplicate or suppressed
+contacts from being exported.
 ```
 
 Current v1 capabilities:
@@ -63,54 +63,99 @@ only contact rows that retain source evidence.
 
 ## Quick Start
 
-Install from GitHub:
+### Install Without Cloning
+
+Yes. Spyber can be installed without cloning the repository. `go install`
+downloads the source, builds native binaries for your current OS and CPU, and
+places them in Go's binary directory.
+
+Prerequisites:
+
+- Go `1.26` or newer
+- PostgreSQL for normal durable use
+
+Install the latest published version:
 
 ```bash
 go install github.com/arnesssr/Spyber/cmd/spyber@latest
 go install github.com/arnesssr/Spyber/cmd/spyberd@latest
-```
-
-Or install from a local clone:
-
-```bash
-make install
 export PATH="$(go env GOPATH)/bin:$PATH"
-make install-check
 ```
 
+Or install a fixed release:
+
 ```bash
-go test ./...
-export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
-go run ./cmd/spyber init
-go run ./cmd/spyber version
-go run ./cmd/spyber find --country KE --query salon --limit 50 --crawl-mode deep
-go run ./cmd/spyber find --country KE --query distributor --limit 100 --crawl-mode exhaustive
-go run ./cmd/spyber companies list --country KE
-go run ./cmd/spyber contacts list --country KE
-go run ./cmd/spyber export --country KE --format csv --only generic
+go install github.com/arnesssr/Spyber/cmd/spyber@v0.2.3
+go install github.com/arnesssr/Spyber/cmd/spyberd@v0.2.3
+export PATH="$(go env GOPATH)/bin:$PATH"
 ```
 
-Set PostgreSQL locally or in production:
+Check the installed binaries:
+
+```bash
+spyber version
+spyberd --help
+```
+
+### Configure Storage
+
+Spyber requires PostgreSQL for normal use:
 
 ```bash
 export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
-go run ./cmd/spyber init
+spyber init
+```
+
+For a quick local PostgreSQL with Docker:
+
+```bash
+docker run --name spyber-postgres \
+  -e POSTGRES_USER=spyber \
+  -e POSTGRES_PASSWORD=spyber \
+  -e POSTGRES_DB=spyber \
+  -p 5432:5432 \
+  -d postgres:16
+
+export SPYBER_DATABASE_URL='postgres://spyber:spyber@127.0.0.1:5432/spyber?sslmode=disable'
+spyber init
+```
+
+### Run A Search
+
+```bash
+spyber find --country KE --query salon --limit 50 --crawl-mode deep
+spyber find --country KE --query distributor --limit 100 --crawl-mode exhaustive
+spyber companies list --country KE
+spyber contacts list --country KE
+spyber export --country KE --format csv --only generic
+```
+
+### Run The UI
+
+```bash
+spyberd --addr 127.0.0.1:8091
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8091
 ```
 
 Manual source workflow:
 
 ```bash
-go run ./cmd/spyber source add --country KE --type seed --url https://example.co.ke
-go run ./cmd/spyber discover --country KE --from-sources --limit 100
-go run ./cmd/spyber crawl --country KE
+spyber source add --country KE --type seed --url https://example.co.ke
+spyber discover --country KE --from-sources --limit 100
+spyber crawl --country KE
 ```
 
 ## Web UI
 
-Run the operator UI:
+From an installed binary:
 
 ```bash
-make run-ui
+spyberd --addr 127.0.0.1:8091
 ```
 
 Then open:
@@ -122,7 +167,7 @@ http://127.0.0.1:8091
 Set `SPYBER_ADMIN_TOKEN` to require browser Basic Auth with username `admin`:
 
 ```bash
-SPYBER_ADMIN_TOKEN=change-me make run-ui
+SPYBER_ADMIN_TOKEN=change-me spyberd --addr 127.0.0.1:8091
 ```
 
 The UI is server-rendered Go HTML. It has no TypeScript or frontend build
@@ -143,11 +188,11 @@ claim:
 
 ```bash
 export SPYBER_DATABASE_URL='postgres://user:pass@localhost:5432/spyber?sslmode=disable'
-go run ./cmd/spyber init
-go run ./cmd/spyber find --country KE --query salon --limit 5 --crawl-mode exhaustive
-go run ./cmd/spyber companies list --country KE
-go run ./cmd/spyber contacts list --country KE
-go run ./cmd/spyber export --country KE --format csv --only generic
+spyber init
+spyber find --country KE --query salon --limit 5 --crawl-mode exhaustive
+spyber companies list --country KE
+spyber contacts list --country KE
+spyber export --country KE --format csv --only generic
 ```
 
 The outcome is acceptable only if exported rows are public business contacts,
@@ -165,6 +210,14 @@ deduped, source-backed, and tied to matched businesses.
 - the web UI binds to `127.0.0.1:8091` by default
 
 ## Verification
+
+For development from a local clone:
+
+```bash
+make install
+export PATH="$(go env GOPATH)/bin:$PATH"
+make install-check
+```
 
 ```bash
 make test
